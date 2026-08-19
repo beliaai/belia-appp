@@ -38,7 +38,7 @@ if prompt := st.chat_input("Pergunte algo para a BEL.IA..."):
             try:
                 # Remove espaços em branco acidentais da chave
                 clean_key = API_KEY.strip()
-                url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key={clean_key}"
+                url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={clean_key}"
                 
                 payload = {
                     "contents": [{
