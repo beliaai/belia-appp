@@ -9,7 +9,8 @@ st.title("BEL.IA 🤖")
 st.caption("Assistente Virtual da 1ª Série - Expanciência 2026")
 
 # Cole sua chave da API do Gemini dentro das aspas abaixo:
-API_KEY = "AQ.Ab8RN6JOnsY6_SSmfYMMZfo2si3fN0ZEEFq7FY9FYMAitJLpSQ"
+API_KEY = "AQ.Ab8RN6LImImAUKQcsaqWGGivhvOaLWLxrIwqaJ-EBfcBgJQx7Q"
+
 
 # Instrução do sistema
 sys_instruction = (
