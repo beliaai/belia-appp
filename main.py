@@ -8,12 +8,8 @@ st.set_page_config(page_title="BEL.IA - Expanciência 2026", page_icon="🤖", l
 st.title("BEL.IA 🤖")
 st.caption("Assistente Virtual da 1ª Série - Expanciência 2026")
 
-# Busca a chave com segurança dos Secrets do Streamlit
-try:
-    API_KEY = st.secrets["AQ.Ab8RN6LImImAUKQcsaqWGGivhvOaLWLxrIwqaJ-EBfcBgJQx7Q"].strip()
-except Exception:
-    st.error("Chave da API não configurada nos Secrets do Streamlit!")
-    st.stop()
+# Cole a sua chave de API gerada no Google AI Studio exatamente dentro das aspas abaixo
+API_KEY = "AQ.Ab8RN6LImImAUKQcsaqWGGivhvOaLWLxrIwqaJ-EBfcBgJQx7Q"
 
 # Instrução do sistema
 sys_instruction = (
@@ -40,7 +36,8 @@ if prompt := st.chat_input("Pergunte algo para a BEL.IA..."):
     with st.chat_message("assistant"):
         with st.spinner("Pensando..."):
             try:
-                url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={API_KEY}"
+                clean_key = API_KEY.strip()
+                url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={clean_key}"
                 
                 payload = {
                     "contents": [{
@@ -65,5 +62,9 @@ if prompt := st.chat_input("Pergunte algo para a BEL.IA..."):
                     
                     st.markdown(bot_response)
                     st.session_state.messages.append({"role": "assistant", "content": bot_response})
+            except urllib.error.HTTPError as err:
+                error_details = err.read().decode('utf-8')
+                st.error(f"Erro na API do Gemini ({err.code}): {error_details}")
             except Exception as e:
-                st.error(f"Erro ao processar resposta: {e}")
+                st.error(f"Erro no sistema: {e}")
+
