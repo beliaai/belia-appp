@@ -8,7 +8,7 @@ st.title("BEL.IA 🤖")
 st.caption("Assistente Virtual da 1ª Série - Expanciência 2026")
 
 # Busca a chave de API dos Secrets do Streamlit
-api_key = st.secrets.get("AQ.Ab8RN6IyJ1AwD6gY6isVf3Abn4JVPpIR47oaZ5m9boUHKAgyGA")
+api_key = st.secrets.get("AQ.Ab8RN6JhyCe2iVQ13RXC4M4GUapFs6oMnnuTvWwwopDOG9AW9A")
 
 if not api_key:
     st.error("Chave GEMINI_API_KEY não encontrada nas configurações (Secrets).")
