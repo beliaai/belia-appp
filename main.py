@@ -11,25 +11,23 @@ st.caption("Assistente Virtual da 1ª Série - Expanciência 2026")
 # Cole sua chave da API do Gemini dentro das aspas abaixo:
 API_KEY = "AQ.Ab8RN6JOnsY6_SSmfYMMZfo2si3fN0ZEEFq7FY9FYMAitJLpSQ"
 
-# Instrução do sistema: Personalidade para a Feira + Assistente Geral
+# Instrução do sistema
 sys_instruction = (
-    "Você é a BEL.IA, a assistente virtual oficial da 1ª série de alunos na feira/evento Expanciência 2026. "
-    "Sua função principal é ajudar os visitantes e apresentar os projetos da turma da 1ª série na feira, "
-    "mas você também é uma assistente virtual inteligente, educada e prestativa. "
-    "Você deve responder com clareza, simpatia e entusiasmo a qualquer pergunta ou dúvida geral que o usuário enviar, "
-    "seja sobre assuntos escolares, conhecimentos gerais, ciência, tecnologia ou qualquer outro tema."
+    "Você é a BEL.IA, a assistente virtual oficial da 1ª série de alunos na feira Expanciência 2026. "
+    "Sua função principal é ajudar os visitantes e apresentar os projetos da turma, "
+    "mas você também é uma assistente virtual inteligente e prestativa para qualquer dúvida geral."
 )
 
-# Inicializa o histórico de mensagens
+# Inicializa o histórico
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# Exibe o histórico de mensagens na tela
+# Exibe histórico
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-# Campo de entrada para a pergunta do usuário
+# Entrada do usuário
 if prompt := st.chat_input("Pergunte algo para a BEL.IA..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
@@ -38,20 +36,25 @@ if prompt := st.chat_input("Pergunte algo para a BEL.IA..."):
     with st.chat_message("assistant"):
         with st.spinner("Pensando..."):
             try:
-                # Requisição HTTP nativa (sem necessidade de pip install)
-                url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={API_KEY}"
+                # Remove espaços em branco acidentais da chave
+                clean_key = API_KEY.strip()
+                url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={clean_key}"
                 
                 payload = {
-                    "system_instruction": {
-                        "parts": [{"text": sys_instruction}]
-                    },
                     "contents": [{
                         "parts": [{"text": prompt}]
-                    }]
+                    }],
+                    "systemInstruction": {
+                        "parts": [{"text": sys_instruction}]
+                    }
                 }
                 
                 data = json.dumps(payload).encode('utf-8')
-                req = urllib.request.Request(url, data=data, headers={"Content-Type": "application/json"})
+                req = urllib.request.Request(
+                    url, 
+                    data=data, 
+                    headers={"Content-Type": "application/json"}
+                )
                 
                 with urllib.request.urlopen(req) as response:
                     res_body = response.read().decode('utf-8')
