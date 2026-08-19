@@ -9,7 +9,7 @@ st.title("BEL.IA 🤖")
 st.caption("Assistente Virtual da 1ª Série - Expanciência 2026")
 
 # Cole a sua chave de API gerada no Google AI Studio exatamente dentro das aspas abaixo
-API_KEY = "AQ.Ab8RN6LImImAUKQcsaqWGGivhvOaLWLxrIwqaJ-EBfcBgJQx7Q"
+API_KEY = "AQ.Ab8RN6Lxg4B3MSPN4qvBeiYh2cVNWccNP2F3deKYOij1MNeISA"
 
 # Instrução do sistema
 sys_instruction = (
