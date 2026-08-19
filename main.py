@@ -7,16 +7,12 @@ st.set_page_config(page_title="BEL.IA - Expanciência 2026", page_icon="🤖", l
 st.title("BEL.IA 🤖")
 st.caption("Assistente Virtual da 1ª Série - Expanciência 2026")
 
-# Busca a chave de API dos Secrets do Streamlit
-api_key = st.secrets.get("AQ.Ab8RN6JhyCe2iVQ13RXC4M4GUapFs6oMnnuTvWwwopDOG9AW9A")
-
-if not api_key:
-    st.error("Chave GEMINI_API_KEY não encontrada nas configurações (Secrets).")
-    st.stop()
+# Cole sua chave do Gemini dentro das aspas abaixo:
+API_KEY = "AQ.Ab8RN6JOnsY6_SSmfYMMZfo2si3fN0ZEEFq7FY9FYMAitJLpSQ"
 
 # Configuração da personalidade / instrução do sistema
 sys_instruction = (
-    "Você é a BEL.IA, a assistente virtual oficial da 1ª série de alunos na feira/evento Expanciência 2026. "
+    "Você é a BEL.IA, a assistente virtual oficial da 1ª série de alunos na feira Expanciência 2026. "
     "Sua função é tirar dúvidas, ajudar os visitantes, apresentar os projetos da turma da 1ª série "
     "e responder de forma educada, animada, clara e pré-configurada para o evento Expanciência 2026."
 )
@@ -41,7 +37,7 @@ if prompt := st.chat_input("Pergunte algo para a BEL.IA sobre a 1ª Série na Ex
     with st.chat_message("assistant"):
         with st.spinner("Pensando..."):
             try:
-                url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
+                url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={API_KEY}"
                 headers = {"Content-Type": "application/json"}
                 payload = {
                     "system_instruction": {
