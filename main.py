@@ -1,6 +1,5 @@
 import streamlit as st
-from google import genai
-from google.genai import types
+import requests
 
 # Configuração da página
 st.set_page_config(page_title="BEL.IA - Expanciência 2026", page_icon="🤖", layout="centered")
@@ -14,9 +13,6 @@ api_key = st.secrets.get("AQ.Ab8RN6IyJ1AwD6gY6isVf3Abn4JVPpIR47oaZ5m9boUHKAgyGA"
 if not api_key:
     st.error("Chave GEMINI_API_KEY não encontrada nas configurações (Secrets).")
     st.stop()
-
-# Inicializa o cliente do Gemini
-client = genai.Client(api_key=api_key)
 
 # Configuração da personalidade / instrução do sistema
 sys_instruction = (
@@ -41,18 +37,30 @@ if prompt := st.chat_input("Pergunte algo para a BEL.IA sobre a 1ª Série na Ex
     with st.chat_message("user"):
         st.markdown(prompt)
 
-    # Gera a resposta com a IA
+    # Gera a resposta via requisição HTTP direta
     with st.chat_message("assistant"):
         with st.spinner("Pensando..."):
             try:
-                response = client.models.generate_content(
-                    model="gemini-2.5-flash",
-                    contents=prompt,
-                    config=types.GenerateContentConfig(
-                        system_instruction=sys_instruction,
-                    ),
-                )
-                st.markdown(response.text)
-                st.session_state.messages.append({"role": "assistant", "content": response.text})
+                url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
+                headers = {"Content-Type": "application/json"}
+                payload = {
+                    "system_instruction": {
+                        "parts": [{"text": sys_instruction}]
+                    },
+                    "contents": [{
+                        "parts": [{"text": prompt}]
+                    }]
+                }
+                
+                response = requests.post(url, json=payload, headers=headers)
+                data = response.json()
+                
+                if response.status_code == 200:
+                    bot_response = data["candidates"][0]["content"]["parts"][0]["text"]
+                    st.markdown(bot_response)
+                    st.session_state.messages.append({"role": "assistant", "content": bot_response})
+                else:
+                    error_msg = data.get("error", {}).get("message", "Erro desconhecido")
+                    st.error(f"Erro na API: {error_msg}")
             except Exception as e:
                 st.error(f"Erro ao processar resposta: {e}")
