@@ -7,16 +7,20 @@ st.set_page_config(page_title="BEL.IA - Expanciência 2026", page_icon="🤖", l
 st.title("BEL.IA 🤖")
 st.caption("Assistente Virtual da 1ª Série - Expanciência 2026")
 
-# Linha 12: Busca a chave com segurança dos Secrets do Streamlit (sem expor a chave aqui)
+# Defina aqui os nomes dos arquivos de imagem que você enviou para o GitHub
+USER_AVATAR = "user.png"  # Mude para "user.jpg" se a sua foto for JPG
+BOT_AVATAR = "bot.png"    # Mude para "bot.jpg" se a foto da Belia for JPG
+
+# Busca a chave com segurança dos Secrets do Streamlit
 try:
     API_KEY = st.secrets["GEMINI_API_KEY"].strip()
 except Exception:
-    st.error("Chave não encontrada nos Secrets do Streamlit! Verifique se configurou a aba Secrets.")
+    st.error("Chave não encontrada nos Secrets do Streamlit!")
     st.stop()
 
-# Instrução do sistema em inglês para melhor desempenho, exigindo resposta em português
+# Instrução do sistema em inglês para melhor desempenho do modelo
 sys_instruction = (
-    "You are BEL.IA, the official virtual assistant for the 1st-grade high school students at the Expanciência 2026 science fair. "
+    "You are BEL.IA, the official virtual assistant for 1st-grade high school students at the Expanciência 2026 science fair. "
     "Your primary goal is to help visitors by explaining the students' class project with enthusiasm. "
     "However, you are also a fully capable, helpful, and versatile AI assistant ready to answer general questions on any topic. "
     "CRITICAL REQUIREMENT: You MUST ALWAYS respond to users in Portuguese (Brazil)."
@@ -26,15 +30,16 @@ if "messages" not in st.session_state:
     st.session_state.messages = []
 
 for message in st.session_state.messages:
-    with st.chat_message(message["role"]):
+    avatar = USER_AVATAR if message["role"] == "user" else BOT_AVATAR
+    with st.chat_message(message["role"], avatar=avatar):
         st.markdown(message["content"])
 
 if prompt := st.chat_input("Pergunte algo para a BEL.IA..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
-    with st.chat_message("user"):
+    with st.chat_message("user", avatar=USER_AVATAR):
         st.markdown(prompt)
 
-    with st.chat_message("assistant"):
+    with st.chat_message("assistant", avatar=BOT_AVATAR):
         with st.spinner("Pensando..."):
             try:
                 client = genai.Client(api_key=API_KEY)
