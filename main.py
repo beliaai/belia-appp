@@ -1,6 +1,5 @@
 import streamlit as st
-import urllib.request
-import json
+from google import genai
 
 # Configuração da página
 st.set_page_config(page_title="BEL.IA - Expanciência 2026", page_icon="🤖", layout="centered")
@@ -8,26 +7,28 @@ st.set_page_config(page_title="BEL.IA - Expanciência 2026", page_icon="🤖", l
 st.title("BEL.IA 🤖")
 st.caption("Assistente Virtual da 1ª Série - Expanciência 2026")
 
-# Cole a sua chave de API gerada no Google AI Studio exatamente dentro das aspas abaixo
-API_KEY = "AQ.Ab8RN6Lxg4B3MSPN4qvBeiYh2cVNWccNP2F3deKYOij1MNeISA"
+# Linha 12: Busca a chave com segurança dos Secrets do Streamlit (sem expor a chave aqui)
+try:
+    API_KEY = st.secrets["GEMINI_API_KEY"].strip()
+except Exception:
+    st.error("Chave não encontrada nos Secrets do Streamlit! Verifique se configurou a aba Secrets.")
+    st.stop()
 
-# Instrução do sistema
+# Instrução do sistema em inglês para melhor desempenho, exigindo resposta em português
 sys_instruction = (
-    "Você é a BEL.IA, a assistente virtual oficial da 1ª série de alunos na feira Expanciência 2026. "
-    "Sua função principal é ajudar os visitantes e apresentar os projetos da turma, "
-    "mas você também é uma assistente virtual inteligente e prestativa para qualquer dúvida geral."
+    "You are BEL.IA, the official virtual assistant for the 1st-grade high school students at the Expanciência 2026 science fair. "
+    "Your primary goal is to help visitors by explaining the students' class project with enthusiasm. "
+    "However, you are also a fully capable, helpful, and versatile AI assistant ready to answer general questions on any topic. "
+    "CRITICAL REQUIREMENT: You MUST ALWAYS respond to users in Portuguese (Brazil)."
 )
 
-# Inicializa o histórico
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# Exibe histórico
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-# Entrada do usuário
 if prompt := st.chat_input("Pergunte algo para a BEL.IA..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
@@ -36,35 +37,15 @@ if prompt := st.chat_input("Pergunte algo para a BEL.IA..."):
     with st.chat_message("assistant"):
         with st.spinner("Pensando..."):
             try:
-                clean_key = API_KEY.strip()
-                url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key={clean_key}"
-                
-                payload = {
-                    "contents": [{
-                        "parts": [{"text": prompt}]
-                    }],
-                    "systemInstruction": {
-                        "parts": [{"text": sys_instruction}]
-                    }
-                }
-                
-                data = json.dumps(payload).encode('utf-8')
-                req = urllib.request.Request(
-                    url, 
-                    data=data, 
-                    headers={"Content-Type": "application/json"}
+                client = genai.Client(api_key=API_KEY)
+                response = client.models.generate_content(
+                    model="gemini-2.5-flash",
+                    contents=prompt,
+                    config={"system_instruction": sys_instruction}
                 )
                 
-                with urllib.request.urlopen(req) as response:
-                    res_body = response.read().decode('utf-8')
-                    res_json = json.loads(res_body)
-                    bot_response = res_json["candidates"][0]["content"]["parts"][0]["text"]
-                    
-                    st.markdown(bot_response)
-                    st.session_state.messages.append({"role": "assistant", "content": bot_response})
-            except urllib.error.HTTPError as err:
-                error_details = err.read().decode('utf-8')
-                st.error(f"Erro na API do Gemini ({err.code}): {error_details}")
+                bot_response = response.text
+                st.markdown(bot_response)
+                st.session_state.messages.append({"role": "assistant", "content": bot_response})
             except Exception as e:
-                st.error(f"Erro no sistema: {e}")
-
+                st.error(f"Erro ao processar resposta: {e}")
