@@ -39,7 +39,7 @@ if prompt := st.chat_input("Pergunte algo para a BEL.IA..."):
             try:
                 client = genai.Client(api_key=API_KEY)
                 response = client.models.generate_content(
-                    model="gemini-2.5-flash",
+                    model="gemini-3.6-flash",
                     contents=prompt,
                     config={"system_instruction": sys_instruction}
                 )
