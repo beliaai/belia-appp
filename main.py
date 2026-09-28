@@ -4,34 +4,17 @@ from google import genai
 # Configuração da página
 st.set_page_config(page_title="BEL.IA - Expanciência 2026", page_icon="🤖", layout="centered")
 
-# --- CSS PARA FORÇAR A IMAGEM CENTRALIZADA ---
+# --- LOGO E TÍTULO CENTRALIZADOS COM HTML PURO ABSOLUTO ---
 st.markdown(
     """
-    <style>
-    [data-testid="stImage"] {
-        display: flex;
-        justify-content: center;
-        margin-left: auto;
-        margin-right: auto;
-    }
-    [data-testid="stImage"] img {
-        display: block;
-        margin-left: auto;
-        margin-right: auto;
-    }
-    </style>
+    <div style="text-align: center; width: 100%; margin-top: 20px; margin-bottom: 20px;">
+        <img src="app/static/bot.png" width="120" style="display: block; margin: 0 auto; border-radius: 10px;">
+        <h1 style="color: #1E3A8A; margin-top: 10px; margin-bottom: 0px;">BEL.IA 🤖</h1>
+        <p style="color: #1E3A8A; font-size: 16px; margin-top: 5px;">Assistente Virtual da 1ª Série - Expanciência 2026</p>
+    </div>
     """,
     unsafe_allow_html=True
 )
-
-# --- LOGO CENTRALIZADA COM COLUNAS E CSS ---
-col1, col2, col3 = st.columns([1, 2, 1])
-with col2:
-    st.image("bot.png", width=120)
-
-# Título e legenda centralizados
-st.markdown("<h1 style='text-align: center; color: #1E3A8A;'>BEL.IA 🤖</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; color: #1E3A8A;'>Assistente Virtual da 1ª Série - Expanciência 2026</p>", unsafe_allow_html=True)
 
 # Defina aqui os nomes dos arquivos de imagem dos avatares
 USER_AVATAR = "user.png"  
