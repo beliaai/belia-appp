@@ -4,15 +4,13 @@ from google import genai
 # Configuração da página
 st.set_page_config(page_title="BEL.IA - Expanciência 2026", page_icon="🤖", layout="centered")
 
-# --- ADICIONANDO A LOGO CENTRALIZADA NO TOPO ---
-# Usamos colunas para centralizar a imagem e deixá-la pequena
-col1, col2, col3 = st.columns([1, 1, 1])
+# --- LOGO CENTRALIZADA COM HTML ---
+col1, col2, col3 = st.columns([1, 2, 1])
 with col2:
-    # Se a sua logo for bot.png, ela vai aparecer aqui em cima centralizada e menor (largura 120 pixels)
     st.image("bot.png", width=120)
 
-# Título e legenda logo abaixo da logo
-st.markdown("<h1 style='text-align: center;'>BEL.IA 🤖</h1>", unsafe_allow_html=True)
+# Título e legenda centralizados
+st.markdown("<h1 style='text-align: center; color: #1E3A8A;'>BEL.IA 🤖</h1>", unsafe_allow_html=True)
 st.markdown("<p style='text-align: center; color: #1E3A8A;'>Assistente Virtual da 1ª Série - Expanciência 2026</p>", unsafe_allow_html=True)
 
 # Defina aqui os nomes dos arquivos de imagem dos avatares
