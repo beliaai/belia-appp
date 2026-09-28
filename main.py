@@ -1,20 +1,12 @@
 import streamlit as st
 from google import genai
 
-# Configuração da página
-st.set_page_config(page_title="BEL.IA - Expanciência 2026", page_icon="🤖", layout="centered")
+# Configuração da página com a logo como favicon oficial alinhado
+st.set_page_config(page_title="BEL.IA - Expanciência 2026", page_icon="bot.png", layout="centered")
 
-# --- LOGO E TÍTULO CENTRALIZADOS COM HTML PURO ABSOLUTO ---
-st.markdown(
-    """
-    <div style="text-align: center; width: 100%; margin-top: 20px; margin-bottom: 20px;">
-        <img src="app/static/bot.png" width="120" style="display: block; margin: 0 auto; border-radius: 10px;">
-        <h1 style="color: #1E3A8A; margin-top: 10px; margin-bottom: 0px;">BEL.IA 🤖</h1>
-        <p style="color: #1E3A8A; font-size: 16px; margin-top: 5px;">Assistente Virtual da 1ª Série - Expanciência 2026</p>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
+# --- TÍTULO E LEGENDAS CENTRALIZADOS NATIVAMENTE ---
+st.markdown("<h1 style='text-align: center; color: #1E3A8A;'>BEL.IA 🤖</h1>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: #1E3A8A; font-size: 16px;'>Assistente Virtual da 1ª Série - Expanciência 2026</p>", unsafe_allow_html=True)
 
 # Defina aqui os nomes dos arquivos de imagem dos avatares
 USER_AVATAR = "user.png"  
