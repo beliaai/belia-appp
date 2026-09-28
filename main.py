@@ -4,14 +4,10 @@ from google import genai
 # Configuração da página
 st.set_page_config(page_title="BEL.IA - Expanciência 2026", page_icon="🤖", layout="centered")
 
-# --- LOGO E TEXTOS FORÇADOS A COLAR VIA TRANSLATE ---
+# --- LOGO E TEXTOS COMPRIMIDOS SEM ESPAÇOS VAZIOS NO HTML ---
 st.markdown(
     """
-    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; margin-top: 5px; margin-bottom: 20px;">
-        <img src="https://raw.githubusercontent.com/beliaai/belia-appp/main/bot.png" width="110" style="border-radius: 10px; display: block;">
-        <div style="color: #1E3A8A; font-size: 2.4rem; font-weight: bold; transform: translateY(-12px); margin-bottom: -8px;">BEL.IA</div>
-        <div style="color: #1E3A8A; font-size: 1.05rem; transform: translateY(-8px);">Assistente Virtual da 1ª Série - Expanciência 2026</div>
-    </div>
+    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; margin-top: 5px; margin-bottom: 20px;"><img src="https://raw.githubusercontent.com/beliaai/belia-appp/main/bot.png" width="110" style="border-radius: 10px; display: block; margin-bottom: -15px;"><div style="color: #1E3A8A; font-size: 2.4rem; font-weight: bold; margin-top: 0px; margin-bottom: -2px;">BEL.IA</div><div style="color: #1E3A8A; font-size: 1.05rem; margin-top: 0px;">Assistente Virtual da 1ª Série - Expanciência 2026</div></div>
     """,
     unsafe_allow_html=True
 )
