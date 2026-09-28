@@ -4,12 +4,12 @@ from google import genai
 # Configuração da página
 st.set_page_config(page_title="BEL.IA - Expanciência 2026", page_icon="🤖", layout="centered")
 
-# --- LOGO E TEXTOS SEM O EMOJI, 100% CENTRALIZADOS ---
+# --- LOGO E TEXTOS COM ESPAÇAMENTO REDUZIDO ENTRE ELES ---
 st.markdown(
     """
     <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; margin-top: 10px; margin-bottom: 20px;">
-        <img src="https://raw.githubusercontent.com/beliaai/belia-appp/main/bot.png" width="120" style="border-radius: 10px; display: block; margin-bottom: 12px;">
-        <div style="color: #1E3A8A; font-size: 2.5rem; font-weight: bold; margin-bottom: 5px;">BEL.IA</div>
+        <img src="https://raw.githubusercontent.com/beliaai/belia-appp/main/bot.png" width="120" style="border-radius: 10px; display: block; margin-bottom: 2px;">
+        <div style="color: #1E3A8A; font-size: 2.5rem; font-weight: bold; margin-bottom: 2px;">BEL.IA</div>
         <div style="color: #1E3A8A; font-size: 1.1rem;">Assistente Virtual da 1ª Série - Expanciência 2026</div>
     </div>
     """,
