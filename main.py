@@ -4,12 +4,20 @@ from google import genai
 # Configuração da página
 st.set_page_config(page_title="BEL.IA - Expanciência 2026", page_icon="🤖", layout="centered")
 
-st.title("BEL.IA 🤖")
-st.caption("Assistente Virtual da 1ª Série - Expanciência 2026")
+# --- ADICIONANDO A LOGO CENTRALIZADA NO TOPO ---
+# Usamos colunas para centralizar a imagem e deixá-la pequena
+col1, col2, col3 = st.columns([1, 1, 1])
+with col2:
+    # Se a sua logo for bot.png, ela vai aparecer aqui em cima centralizada e menor (largura 120 pixels)
+    st.image("bot.png", width=120)
 
-# Defina aqui os nomes dos arquivos de imagem que você enviou para o GitHub
-USER_AVATAR = "user.png"  # Mude para "user.jpg" se a sua foto for JPG
-BOT_AVATAR = "bot.png"    # Mude para "bot.jpg" se a foto da Belia for JPG
+# Título e legenda logo abaixo da logo
+st.markdown("<h1 style='text-align: center;'>BEL.IA 🤖</h1>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: #1E3A8A;'>Assistente Virtual da 1ª Série - Expanciência 2026</p>", unsafe_allow_html=True)
+
+# Defina aqui os nomes dos arquivos de imagem dos avatares
+USER_AVATAR = "user.png"  
+BOT_AVATAR = "bot.png"    
 
 # Busca a chave com segurança dos Secrets do Streamlit
 try:
@@ -18,7 +26,7 @@ except Exception:
     st.error("Chave não encontrada nos Secrets do Streamlit!")
     st.stop()
 
-# Instrução do sistema em inglês para melhor desempenho do modelo
+# Instrução do sistema
 sys_instruction = (
     "You are BEL.IA, the official virtual assistant for 1st-grade high school students at the Expanciência 2026 science fair. "
     "Your primary goal is to help visitors by explaining the students' class project with enthusiasm. "
