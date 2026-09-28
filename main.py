@@ -4,15 +4,10 @@ from google import genai
 # Configuração da página
 st.set_page_config(page_title="BEL.IA - Expanciência 2026", page_icon="🤖", layout="centered")
 
-# --- LOGO CENTRALIZADA COM HTML PURO ---
-st.markdown(
-    """
-    <div style="display: flex; justify-content: center; margin-bottom: 10px;">
-        <img src="app/static/bot.png" width="120" style="border-radius: 10px;">
-    </div>
-    """,
-    unsafe_allow_html=True
-)
+# --- LOGO CENTRALIZADA COM COLUNAS ---
+col1, col2, col3 = st.columns([2, 1, 2])
+with col2:
+    st.image("bot.png", width=120)
 
 # Título e legenda centralizados
 st.markdown("<h1 style='text-align: center; color: #1E3A8A;'>BEL.IA 🤖</h1>", unsafe_allow_html=True)
