@@ -4,13 +4,13 @@ from google import genai
 # Configuração da página
 st.set_page_config(page_title="BEL.IA - Expanciência 2026", page_icon="🤖", layout="centered")
 
-# --- LOGO E TEXTOS NA PALETA DE AZUL DA LOGO ---
+# --- LOGO E TÍTULO COM O TOM CLARO E BRILHANTE DA LOGO ---
 st.markdown(
     """
     <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; margin-top: 0px; margin-bottom: 20px;">
         <img src="https://raw.githubusercontent.com/beliaai/belia-appp/main/bot.png" width="115" style="border-radius: 8px; display: block; margin-bottom: -12px;">
-        <div style="color: #0F2A4A; font-size: 2.3rem; font-weight: bold; line-height: 1.1;">BEL.IA</div>
-        <div style="color: #1E3A8A; font-size: 1rem; margin-top: 2px; font-weight: 500;">Assistente Virtual da 1ª Série - Expanciência 2026</div>
+        <div style="background: linear-gradient(90deg, #0066FF 0%, #00B4D8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 2.8rem; font-weight: bold; line-height: 1.1;">BEL.IA</div>
+        <div style="color: #0077B6; font-size: 1rem; margin-top: 4px; font-weight: 600;">Assistente Virtual da 1ª Série - Expanciência 2026</div>
     </div>
     """,
     unsafe_allow_html=True
