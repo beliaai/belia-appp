@@ -4,13 +4,13 @@ from google import genai
 # Configuração da página
 st.set_page_config(page_title="BEL.IA - Expanciência 2026", page_icon="🤖", layout="centered")
 
-# --- LOGO E TÍTULO CENTRALIZADOS COM FLEXBOX CSS ---
+# --- LOGO, TÍTULO E SUBTÍTULO CENTRALIZADOS NO MESMO BLOCO HTML ---
 st.markdown(
     """
-    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; margin-top: 10px; margin-bottom: 20px;">
-        <img src="https://raw.githubusercontent.com/beliaai/belia-appp/main/bot.png" width="120" style="border-radius: 10px; display: block;">
-        <h1 style="color: #1E3A8A; margin-top: 10px; margin-bottom: 0px; text-align: center;">BEL.IA 🤖</h1>
-        <p style="color: #1E3A8A; font-size: 16px; margin-top: 5px; text-align: center;">Assistente Virtual da 1ª Série - Expanciência 2026</p>
+    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; margin-top: 10px; margin-bottom: 20px; text-align: center;">
+        <img src="https://raw.githubusercontent.com/beliaai/belia-appp/main/bot.png" width="120" style="border-radius: 10px; display: block; margin-bottom: 10px;">
+        <h1 style="color: #1E3A8A; margin: 0px; font-size: 2.5rem;">BEL.IA 🤖</h1>
+        <p style="color: #1E3A8A; font-size: 1.1rem; margin-top: 5px; margin-bottom: 0px;">Assistente Virtual da 1ª Série - Expanciência 2026</p>
     </div>
     """,
     unsafe_allow_html=True
@@ -44,7 +44,7 @@ for message in st.session_state.messages:
         st.markdown(message["content"])
 
 if prompt := st.chat_input("Pergunte algo para a BEL.IA..."):
-    st.session_state.messages.append({"role": "user", "contents": prompt})
+    st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user", avatar=USER_AVATAR):
         st.markdown(prompt)
 
