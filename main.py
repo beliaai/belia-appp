@@ -4,9 +4,29 @@ from google import genai
 # Configuração da página
 st.set_page_config(page_title="BEL.IA - Expanciência 2026", page_icon="🤖", layout="centered")
 
-# --- LOGO CENTRALIZADA COM 5 COLUNAS (CENTRO MATEMÁTICO PERFEITO) ---
-col1, col2, col3, col4, col5 = st.columns([2, 1, 2, 1, 2])
-with col3:
+# --- CSS PARA FORÇAR A IMAGEM CENTRALIZADA ---
+st.markdown(
+    """
+    <style>
+    [data-testid="stImage"] {
+        display: flex;
+        justify-content: center;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    [data-testid="stImage"] img {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+# --- LOGO CENTRALIZADA COM COLUNAS E CSS ---
+col1, col2, col3 = st.columns([1, 2, 1])
+with col2:
     st.image("bot.png", width=120)
 
 # Título e legenda centralizados
