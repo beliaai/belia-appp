@@ -4,10 +4,14 @@ from google import genai
 # Configuração da página
 st.set_page_config(page_title="BEL.IA - Expanciência 2026", page_icon="🤖", layout="centered")
 
-# --- LOGO E TEXTOS COMPRIMIDOS SEM ESPAÇOS VAZIOS NO HTML ---
+# --- BLOCO HTML UNIFICADO COM ENCAIXE FORÇADO ---
 st.markdown(
     """
-    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; margin-top: 5px; margin-bottom: 20px;"><img src="https://raw.githubusercontent.com/beliaai/belia-appp/main/bot.png" width="110" style="border-radius: 10px; display: block; margin-bottom: -15px;"><div style="color: #1E3A8A; font-size: 2.4rem; font-weight: bold; margin-top: 0px; margin-bottom: -2px;">BEL.IA</div><div style="color: #1E3A8A; font-size: 1.05rem; margin-top: 0px;">Assistente Virtual da 1ª Série - Expanciência 2026</div></div>
+    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; margin-top: 0px; margin-bottom: 15px;">
+        <img src="https://raw.githubusercontent.com/beliaai/belia-appp/main/bot.png" width="105" style="border-radius: 8px; display: block; margin-bottom: -10px;">
+        <div style="color: #1E3A8A; font-size: 2.3rem; font-weight: bold; line-height: 1.1;">BEL.IA</div>
+        <div style="color: #1E3A8A; font-size: 1rem; margin-top: 2px;">Assistente Virtual da 1ª Série - Expanciência 2026</div>
+    </div>
     """,
     unsafe_allow_html=True
 )
