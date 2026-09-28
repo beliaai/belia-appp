@@ -23,7 +23,7 @@ st.markdown(
         font-family: 'Poppins', sans-serif !important;
     }
 
-    /* Força a nova cor de fundo visível e elegante */
+    /* Força a cor de fundo visível e elegante */
     .stApp {
         background-color: #D8E8F8 !important;
     }
@@ -67,12 +67,12 @@ except Exception:
     st.error("Chave não encontrada nos Secrets do Streamlit!")
     st.stop()
 
-# Instrução do sistema
+# Instrução do sistema atualizada: especialista no projeto via PDF + versátil para qualquer pergunta
 sys_instruction = (
-    "You are BEL.IA, the official virtual assistant for 1st-grade high school students at the Expanciência 2026 science fair. "
-    "Your primary goal is to help visitors by explaining the students' class project with enthusiasm. "
-    "However, you are also a fully capable, helpful, and versatile AI assistant ready to answer general questions on any topic. "
-    "CRITICAL REQUIREMENT: You MUST ALWAYS respond to users in Portuguese (Brazil)."
+    "Você é a BEL.IA, a assistente virtual oficial dos alunos da 1ª série do ensino médio na feira de ciências Expanciência 2026. "
+    "Sua função principal é ajudar os visitantes explicando o projeto da turma com entusiasmo e precisão, consultando o documento PDF anexado (quando disponível) para horários da peça, cronograma e detalhes do trabalho 'Cidade com Ciência'. "
+    "NO ENTANTO, você também é uma inteligência artificial totalmente versátil, amigável e prestativa: se o usuário fizer perguntas aleatórias sobre qualquer outro assunto (como ciência, tecnologia, cultura, curiosidades ou conversas gerais), você DEVE responder da melhor forma possível, com inteligência e simpatia. "
+    "REQUISITO CRÍTICO: Você DEVE SEMPRE responder aos usuários em português do Brasil."
 )
 
 if "messages" not in st.session_state:
