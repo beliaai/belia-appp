@@ -1,4 +1,5 @@
 import streamlit as st
+import time
 from google import genai
 
 # Configuração da página
@@ -67,12 +68,16 @@ except Exception:
     st.error("Chave não encontrada nos Secrets do Streamlit!")
     st.stop()
 
-# Instrução do sistema atualizada: especialista no projeto via PDF + versátil para qualquer pergunta
+# Instrução do sistema atualizada para conversas naturais e sem repetições chatas no final
 sys_instruction = (
     "Você é a BEL.IA, a assistente virtual oficial dos alunos da 1ª série do ensino médio na feira de ciências Expanciência 2026. "
-    "Sua função principal é ajudar os visitantes explicando o projeto da turma com entusiasmo e precisão, consultando o documento PDF anexado (quando disponível) para horários da peça, cronograma e detalhes do trabalho 'Cidade com Ciência'. "
-    "NO ENTANTO, você também é uma inteligência artificial totalmente versátil, amigável e prestativa: se o usuário fizer perguntas aleatórias sobre qualquer outro assunto (como ciência, tecnologia, cultura, curiosidades ou conversas gerais), você DEVE responder da melhor forma possível, com inteligência e simpatia. "
-    "REQUISITO CRÍTICO: Você DEVE SEMPRE responder aos usuários em português do Brasil."
+    "Sua principal função é responder dúvidas sobre o projeto da turma e o trabalho 'Cidade com Ciência' (consultando o documento PDF anexado quando necessário). "
+    "No entanto, você é uma inteligência artificial versátil e deve responder a qualquer outra pergunta geral (sobre cultura, ciência, etc.) de forma natural e amigável. "
+    "REGRAS IMPORTANTES DE COMPORTAMENTO: "
+    "1. Seja humana, natural e fluida. "
+    "2. NUNCA repita frases automáticas, comerciais ou convites para falar sobre a feira no final de todas as respostas. "
+    "3. Responda diretamente ao que o usuário perguntou, sem parecer um menu eletrônico ou bot de WhatsApp repetitivo. "
+    "4. REQUISITO CRÍTICO: Você DEVE SEMPRE responder aos usuários em português do Brasil."
 )
 
 if "messages" not in st.session_state:
@@ -90,16 +95,30 @@ if prompt := st.chat_input("Pergunte algo para a BEL.IA..."):
 
     with st.chat_message("assistant", avatar=BOT_AVATAR):
         with st.spinner("Pensando..."):
-            try:
-                client = genai.Client(api_key=API_KEY)
-                response = client.models.generate_content(
-                    model="gemini-3.6-flash",
-                    contents=prompt,
-                    config={"system_instruction": sys_instruction}
-                )
-                
-                bot_response = response.text
+            client = genai.Client(api_key=API_KEY)
+            bot_response = None
+            
+            # Sistema de blindagem contra Erro 503 / quedas
+            max_tentativas = 3
+            for tentativa in range(max_tentativas):
+                try:
+                    response = client.models.generate_content(
+                        model="gemini-3.6-flash",
+                        contents=prompt,
+                        config={"system_instruction": sys_instruction}
+                    )
+                    bot_response = response.text
+                    break 
+                except Exception as e:
+                    if tentativa < max_tentativas - 1:
+                        time.sleep(1.5)
+                    else:
+                        bot_response = None
+            
+            if bot_response:
                 st.markdown(bot_response)
                 st.session_state.messages.append({"role": "assistant", "content": bot_response})
-            except Exception as e:
-                st.error(f"Erro ao processar resposta: {e}")
+            else:
+                erro_msg = "Opa! Houve uma pequena oscilação momentânea na conexão com o servidor. Por favor, envie a sua pergunta novamente!"
+                st.warning(erro_msg)
+                st.session_state.messages.append({"role": "assistant", "content": erro_msg})
