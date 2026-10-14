@@ -95,21 +95,21 @@ if prompt := st.chat_input("Pergunte algo para a BEL.IA..."):
         with st.spinner("Pensando..."):
             bot_response = None
             
-            # Tenta se conectar em silêncio
-            for tentativa in range(5):
+            # Insiste com paciência: tenta até 6 vezes, esperando 2 segundos entre cada tentativa para dar tempo real ao servidor
+            for tentativa in range(6):
                 try:
                     response = client.models.generate_content(
                         model="gemini-3.8-flash",
                         contents=prompt,
                         config={"system_instruction": sys_instruction}
                     )
-                    bot_response = response.text
-                    if bot_response:
+                    if response and response.text:
+                        bot_response = response.text
                         break
-                except Exception as e:
+                except Exception:
                     time.sleep(2)
             
-            # Se esgotar as tentativas por oscilação do servidor, pede educadamente para repetir
+            # Só se esgotar todas as tentativas reais é que ela pede educadamente para repetir
             if not bot_response:
                 bot_response = "Desculpe, tive uma pequena oscilação no processamento. Pode repetir a sua pergunta?"
 
