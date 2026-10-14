@@ -63,13 +63,13 @@ except Exception:
 client = genai.Client(api_key=API_KEY)
 
 sys_instruction = (
-    "Você é a BEL.IA, a assistente virtual oficial dos alunos da 1ª série do Colégio Expansivo na feira Expanciência 2026. "
-    "Sua função é responder a perguntas explicando detalhadamente e com profundidade toda a fundamentação teórica, o problema de pesquisa, os objetivos e os detalhes dos quatro grupos com base no documento oficial fornecido. "
-    "REGRAS DE OURO: "
-    "1. Forneça respostas completas, detalhadas, articuladas e excelentes para os jurados. "
-    "2. Utilize rigorosamente as informações do documento oficial fornecido abaixo. "
-    "3. NUNCA se apresente novamente e NUNCA use frases automáticas no final. "
-    "4. Responda sempre em português do Brasil, sem inserir códigos ou tags.\n\n"
+    "Você é a BEL.IA, a assistente virtual inteligente desenvolvida pelos alunos da 1ª série do Colégio Expansivo para a feira Expanciência 2026. "
+    "Sua missão é conversar com o público e os jurados explicando o projeto sobre Inteligência Artificial e Inteligência Humana nas Profissões.\n\n"
+    "DIRETRIZES DE RESPOSTA:\n"
+    "1. **Responda EXATAMENTE ao que foi perguntado**: Se o usuário perguntar sobre o projeto de forma geral, explique o tema, a proposta e os objetivos, sem incluir informações de culminância (datas, horários ou local) a menos que ele pergunte especificamente sobre isso.\n"
+    "2. **Seja Natural e Fluida**: Use suas próprias palavras, com explicações articuladas e didáticas, sem copiar blocos de texto prontos.\n"
+    "3. **Foco e Precisão**: Traga detalhes específicos apenas quando a pergunta for direcionada ao tema.\n"
+    "4. **Restrições**: NUNCA se apresente novamente e nunca inclua frases automáticas ou despedidas genéricas no final.\n\n"
     f"--- BASE DE CONHECIMENTO COMPLETA DO PROJETO ---\n{contexto.TEXTO_COMPLETO_PROJETO}"
 )
 
@@ -77,7 +77,7 @@ if "messages" not in st.session_state:
     st.session_state.messages = [
         {
             "role": "assistant",
-            "content": "Olá! Eu sou a BEL.IA, a assistente virtual da 1ª série para a Expanciência 2026. Estou pronta para explicar todos os detalhes e o contexto do nosso projeto para você. O que gostaria de saber?"
+            "content": "Olá! Eu sou a BEL.IA, a assistente virtual da 1ª série para a Expanciência 2026. Estou pronta para explicar todos os detalhes do nosso projeto 'Inteligência Artificial e Inteligência Humana na Prática' para você. O que gostaria de saber?"
         }
     ]
 
@@ -94,8 +94,9 @@ if prompt := st.chat_input("Pergunte algo para a BEL.IA..."):
     with st.chat_message("assistant", avatar=BOT_AVATAR):
         with st.spinner("Pensando..."):
             bot_response = None
-            # Sistema de blindagem: tenta até 3 vezes caso o servidor dê oscilação de alta demanda
-            for tentativa in range(3):
+            
+            # Tenta se conectar em silêncio
+            for tentativa in range(5):
                 try:
                     response = client.models.generate_content(
                         model="gemini-3.8-flash",
@@ -103,12 +104,14 @@ if prompt := st.chat_input("Pergunte algo para a BEL.IA..."):
                         config={"system_instruction": sys_instruction}
                     )
                     bot_response = response.text
-                    break # Se deu certo, sai do loop
+                    if bot_response:
+                        break
                 except Exception as e:
-                    if tentativa < 2:
-                        time.sleep(1) # Espera 1 segundo e tenta de novo automaticamente
-                    else:
-                        bot_response = "Estou com um fluxo intenso de acessos neste exato segundo. Por favor, repita a pergunta para eu te responder perfeitamente!"
+                    time.sleep(2)
+            
+            # Se esgotar as tentativas por oscilação do servidor, pede educadamente para repetir
+            if not bot_response:
+                bot_response = "Desculpe, tive uma pequena oscilação no processamento. Pode repetir a sua pergunta?"
 
             st.markdown(bot_response)
             st.session_state.messages.append({"role": "assistant", "content": bot_response})
