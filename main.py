@@ -73,9 +73,8 @@ instrucao_base = (
 
 system_prompt = instrucao_base + contexto.TEXTO_COMPLETO_PROJETO
 
-# Nome do modelo corrigido para gemini-1.5-flash-latest
 model = genai.GenerativeModel(
-    model_name="gemini-1.5-flash-latest",
+    model_name="gemini-1.5-flash",
     system_instruction=system_prompt
 )
 
@@ -104,7 +103,7 @@ if prompt := st.chat_input("Pergunte algo para a BEL.IA..."):
                 response = chat.send_message(prompt)
                 bot_response = response.text
             except Exception as e:
-                bot_response = "Desculpe, tive uma pequena oscilação no processamento. Pode repetir a sua pergunta?"
+                bot_response = f"Erro técnico exato: {str(e)}"
 
             st.markdown(bot_response)
             st.session_state.messages.append({"role": "assistant", "content": bot_response})
