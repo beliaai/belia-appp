@@ -1,6 +1,7 @@
 import streamlit as st
 import time
 from google import genai
+import pypdf  # Biblioteca leve para ler o texto do PDF rapidamente
 
 # Configuração da página
 st.set_page_config(page_title="BEL.IA - Expanciência 2026", page_icon="🤖", layout="centered")
@@ -71,27 +72,29 @@ except Exception:
 # Inicializa o cliente do Gemini
 client = genai.Client(api_key=API_KEY)
 
-# Faz o upload automático do PDF do projeto hospedado no repositório do GitHub
+# Extrai o texto do PDF do projeto na inicialização para garantir velocidade máxima de resposta
 @st.cache_resource
-def carregar_pdf_projeto():
+def extrair_texto_pdf():
     try:
-        pdf_file = client.files.upload(file="projeto.pdf")
-        return pdf_file
+        reader = pypdf.PdfReader("projeto.pdf")
+        texto_completo = ""
+        for page in reader.pages:
+            texto_completo += page.extract_text() + "\n"
+        return texto_completo
     except Exception as e:
-        return None
+        return ""
 
-documento_projeto = carregar_pdf_projeto()
+conteudo_projeto = extrair_texto_pdf()
 
-# Instrução do sistema atualizada: agora ela lê estritamente o nome do projeto direto do PDF
+# Instrução inteligente: velocidade relâmpago, rica em contexto e sem enrolação
 sys_instruction = (
-    "Você é a BEL.IA, a assistente virtual oficial dos alunos da 1ª série do ensino médio na feira de ciências Expanciência 2026. "
-    "Sua função principal é responder dúvidas sobre o projeto da turma utilizando OBRIGATORIAMENTE E ESTRITAMENTE as informações, cronogramas e o **nome exato do projeto** contidos no documento PDF anexado. "
-    "Você também pode responder a qualquer outra pergunta geral de forma amigável e inteligente. "
-    "REGRAS IMPORTANTES: "
-    "1. Como você já se apresentou na mensagem inicial do site, NUNCA volte a se apresentar ou a dizer que é a assistente da 1ª série durante a conversa. "
-    "2. Seja direta, humana e natural em todas as respostas. "
-    "3. NUNCA adicione frases de encerramento automáticas ou convites repetitivos sobre a feira ao final das respostas. "
-    "4. REQUISITO CRÍTICO: Você DEVE SEMPRE responder aos usuários em português do Brasil."
+    "Você é a BEL.IA, a assistente virtual oficial dos alunos da 1ª série na feira Expanciência 2026. "
+    "Sua função é explicar o projeto da turma com base estritamente nas informações fornecidas no documento oficial abaixo. "
+    "REGRAS DE OURO: "
+    "1. Responda com VELOCIDADE e agilidade, de forma clara, bem contextualizada e na medida certa (nem rasa demais, nem longa demais). Dê uma explicação rica que mostre o propósito e o funcionamento do projeto com clareza para os jurados. "
+    "2. NUNCA se apresente novamente e NUNCA use frases automáticas no final. "
+    "3. Responda sempre em português do Brasil.\n\n"
+    f"--- CONTEÚDO OFICIAL DO PROJETO ---\n{conteudo_projeto}"
 )
 
 # MENSAGEM INICIAL AUTOMÁTICA DA BEL.IA AO ABRIR O SITE
@@ -99,7 +102,7 @@ if "messages" not in st.session_state:
     st.session_state.messages = [
         {
             "role": "assistant",
-            "content": "Olá! Eu sou a BEL.IA, a assistente virtual da 1ª série para a Expanciência 2026. Estou aqui para tirar suas dúvidas sobre o nosso projeto, horários da nossa peça e eventos, ou responder a qualquer outra pergunta. Como posso te ajudar hoje?"
+            "content": "Olá! Eu sou a BEL.IA, a assistente virtual da 1ª série para a Expanciência 2026. Estou pronta para explicar todos os detalhes e o contexto do nosso projeto para você. O que gostaria de saber?"
         }
     ]
 
@@ -117,26 +120,25 @@ if prompt := st.chat_input("Pergunte algo para a BEL.IA..."):
         with st.spinner("Pensando..."):
             bot_response = None
             
-            # Prepara os conteúdos enviando a pergunta junto com o arquivo PDF do projeto
-            if documento_projeto:
-                contents_enviados = [prompt, documento_projeto]
-            else:
-                contents_enviados = prompt
-
-            # Tentativas infinitas em segundo plano mantendo a animação "Pensando..." ativa
-            tempo_espera = 2
-            while bot_response is None:
+            # Chamada ultra rápida enviando apenas o texto e a pergunta, sem precisar reprocessar arquivos pesados
+            try:
+                response = client.models.generate_content(
+                    model="gemini-3.6-flash",
+                    contents=prompt,
+                    config={"system_instruction": sys_instruction}
+                )
+                bot_response = response.text
+            except Exception as e:
+                time.sleep(0.5)
                 try:
                     response = client.models.generate_content(
                         model="gemini-3.6-flash",
-                        contents=contents_enviados,
+                        contents=prompt,
                         config={"system_instruction": sys_instruction}
                     )
                     bot_response = response.text
-                except Exception as e:
-                    time.sleep(tempo_espera)
-                    if tempo_espera < 5:
-                        tempo_espera += 1
-            
+                except:
+                    bot_response = "Desculpe, tive um pequeno atraso. Pode repetir a pergunta?"
+
             st.markdown(bot_response)
             st.session_state.messages.append({"role": "assistant", "content": bot_response})
