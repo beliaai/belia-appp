@@ -73,9 +73,9 @@ instrucao_base = (
 
 system_prompt = instrucao_base + contexto.TEXTO_COMPLETO_PROJETO
 
-# Nome exato aceite pela versão clássica da API
+# Inicializa o modelo gemini-1.5-flash com as instruções de sistema
 model = genai.GenerativeModel(
-    model_name="gemini-1.5-flash-001",
+    model_name="gemini-1.5-flash",
     system_instruction=system_prompt
 )
 
@@ -100,8 +100,8 @@ if prompt := st.chat_input("Pergunte algo para a BEL.IA..."):
     with st.chat_message("assistant", avatar=BOT_AVATAR):
         with st.spinner("Pensando..."):
             try:
-                chat = model.start_chat(history=[])
-                response = chat.send_message(prompt)
+                # Chamada direta e ultra estável do generate_content
+                response = model.generate_content(prompt)
                 bot_response = response.text
             except Exception as e:
                 bot_response = f"Erro técnico exato: {str(e)}"
