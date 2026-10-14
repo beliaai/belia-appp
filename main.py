@@ -1,11 +1,14 @@
 import streamlit as st
 from google import genai
-import contexto
 
-# Configuração da página
+try:
+    import contexto
+    CONTEUDO_PROJETO = contexto.TEXTO_COMPLETO_PROJETO
+except Exception:
+    CONTEUDO_PROJETO = "Contexto oficial não carregado."
+
 st.set_page_config(page_title="BEL.IA - Expanciência 2026", page_icon="🤖", layout="centered")
 
-# --- CSS GLOBAL COM O TOM DE FUNDO, FONTE DEL ROSE E CORES ---
 st.markdown(
     """
     <style>
@@ -41,7 +44,6 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# --- LOGO E TÍTULO ---
 st.markdown(
     """
     <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; margin-top: 0px; margin-bottom: 20px;">
@@ -64,16 +66,15 @@ except Exception:
 
 client = genai.Client(api_key=API_KEY)
 
-# Instrução principal usando o texto importado do contexto.py
 sys_instruction = (
-    "Você é a BEL.IA, a assistente virtual oficial dos alunos da 1ª série na feira Expanciência 2026. "
-    "Sua função é responder dúvidas sobre o projeto utilizando estritamente as informações fornecidas abaixo. "
+    "Você é a BEL.IA, a assistente virtual oficial dos alunos da 1ª série do Colégio Expansivo na feira Expanciência 2026. "
+    "Sua função é responder a perguntas explicando detalhadamente e com profundidade toda a fundamentação teórica, o problema de pesquisa, os objetivos, os dados da culminância e os detalhes dos quatro grupos com base estrita no documento oficial fornecido. "
     "REGRAS DE OURO: "
-    "1. Responda de forma rápida, clara, inteligente e com tamanho equilibrado para os jurados. "
-    "2. NUNCA se apresente novamente e NUNCA use frases automáticas no final. "
-    "3. Nunca invente dados que não estejam no texto oficial. "
-    "4. Responda sempre em português do Brasil e sem inserir códigos ou tags como span no texto.\n\n"
-    f"--- CONTEÚDO OFICIAL DO PROJETO ---\n{contexto.TEXTO_COMPLETO_PROJETO}"
+    "1. Forneça respostas completas, ricamente detalhadas, articuladas e explicativas. Nunca responda com frases rasas ou curtas demais. "
+    "2. Utilize todas as informações do documento (fundamentação teórica, enredo da peça teatral, dados da pesquisa TALIS da OCDE, profissionais convidados e cronograma) sempre que for pertinente à pergunta do usuário. "
+    "3. NUNCA se apresente novamente e NUNCA use frases automáticas no final. "
+    "4. Responda sempre em português do Brasil, sem inserir códigos ou tags como 'span'.\n\n"
+    f"--- BASE DE CONHECIMENTO COMPLETA DO PROJETO ---\n{CONTEUDO_PROJETO}"
 )
 
 if "messages" not in st.session_state:
@@ -104,7 +105,7 @@ if prompt := st.chat_input("Pergunte algo para a BEL.IA..."):
                 )
                 bot_response = response.text
             except Exception as e:
-                bot_response = "O nosso projeto da 1ª série aborda a Inteligência Artificial e a Inteligência Humana na Prática para a Expanciência 2026!"
+                bot_response = "Desculpe, tive uma pequena oscilação na conexão. Pode repetir a sua pergunta?"
 
             st.markdown(bot_response)
             st.session_state.messages.append({"role": "assistant", "content": bot_response})
