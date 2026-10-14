@@ -96,7 +96,7 @@ if prompt := st.chat_input("Pergunte algo para a BEL.IA..."):
         with st.spinner("Pensando..."):
             try:
                 response = client.models.generate_content(
-                    model="gemini-2.5-flash",
+                    model="gemini-3.6-flash",
                     contents=prompt,
                     config=types.GenerateContentConfig(
                         system_instruction=system_prompt,
@@ -106,3 +106,9 @@ if prompt := st.chat_input("Pergunte algo para a BEL.IA..."):
                 if response and response.text:
                     bot_response = response.text
                 else:
+                    bot_response = "Não consegui gerar uma resposta no momento. Pode tentar novamente?"
+            except Exception as e:
+                bot_response = f"Erro ao conectar com a IA: {str(e)}"
+
+            st.markdown(bot_response)
+            st.session_state.messages.append({"role": "assistant", "content": bot_response})
