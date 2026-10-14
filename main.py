@@ -93,9 +93,9 @@ if prompt := st.chat_input("Pergunte algo para a BEL.IA..."):
     with st.chat_message("assistant", avatar=BOT_AVATAR):
         with st.spinner("Pensando..."):
             try:
-                # Alterado para o modelo estável gemini-2.5-flash para evitar sobrecarga (503)
+                # Atualizado para o modelo exigido pela API: gemini-3.8-flash
                 response = client.models.generate_content(
-                    model="gemini-2.5-flash",
+                    model="gemini-3.8-flash",
                     contents=prompt,
                     config={"system_instruction": sys_instruction}
                 )
