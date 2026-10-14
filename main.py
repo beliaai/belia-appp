@@ -1,7 +1,6 @@
 import streamlit as st
 import time
 from google import genai
-import pypdf  # Lê o PDF instantaneamente na abertura
 
 # Configuração da página
 st.set_page_config(page_title="BEL.IA - Expanciência 2026", page_icon="🤖", layout="centered")
@@ -72,30 +71,25 @@ except Exception:
 # Inicializa o cliente do Gemini
 client = genai.Client(api_key=API_KEY)
 
-# Extrai o texto do PDF automaticamente na inicialização (super rápido)
+# Faz o upload do PDF do projeto de forma segura com cache
 @st.cache_resource
-def extrair_texto_pdf():
+def carregar_pdf_projeto():
     try:
-        reader = pypdf.PdfReader("projeto.pdf")
-        texto = ""
-        for pagina in reader.pages:
-            texto += pagina.extract_text() + "\n"
-        return texto
+        pdf_file = client.files.upload(file="projeto.pdf")
+        return pdf_file
     except Exception as e:
-        return "Informações do projeto não carregadas."
+        return None
 
-texto_do_projeto = extrair_texto_pdf()
+documento_projeto = carregar_pdf_projeto()
 
-# Instrução inteligente: usa todo o conteúdo do PDF com velocidade máxima e tamanho ideal para os jurados
+# Instrução do sistema equilibrada, clara e profissional para os jurados
 sys_instruction = (
     "Você é a BEL.IA, a assistente virtual oficial dos alunos da 1ª série na feira Expanciência 2026. "
-    "Sua função é responder dúvidas utilizando estritamente e obrigatoriamente as informações contidas no documento oficial do projeto abaixo. "
+    "Sua função é responder dúvidas sobre o projeto utilizando estritamente as informações, nomes corretos e dados contidos no documento PDF anexado. "
     "REGRAS DE OURO: "
-    "1. Responda com VELOCIDADE e agilidade (em menos de 2 segundos). "
-    "2. Dê explicações claras, bem contextualizadas e na medida certa (nem curtas demais, nem longas demais), para que os jurados entendam perfeitamente o projeto. "
-    "3. NUNCA se apresente novamente e NUNCA use frases automáticas no final. "
-    "4. Responda sempre em português do Brasil.\n\n"
-    f"--- CONTEÚDO OFICIAL DO PDF ---\n{texto_do_projeto}"
+    "1. Dê explicações claras, bem contextualizadas e na medida certa (nem superficiais demais, nem longas demais), ideais para os jurados entenderem perfeitamente o projeto. "
+    "2. NUNCA se apresente novamente e NUNCA use frases automáticas no final. "
+    "3. Responda sempre em português do Brasil."
 )
 
 # MENSAGEM INICIAL AUTOMÁTICA DA BEL.IA AO ABRIR O SITE
@@ -121,16 +115,31 @@ if prompt := st.chat_input("Pergunte algo para a BEL.IA..."):
         with st.spinner("Pensando..."):
             bot_response = None
             
-            # Envia apenas a pergunta, já que o PDF inteiro está na memória da instrução (velocidade máxima!)
-            try:
-                response = client.models.generate_content(
-                    model="gemini-3.6-flash",
-                    contents=prompt,
-                    config={"system_instruction": sys_instruction}
-                )
-                bot_response = response.text
-            except Exception as e:
-                bot_response = "Desculpe, tive um breve atraso. Pode repetir a pergunta?"
+            # Monta o conteúdo enviando a pergunta junto com o PDF carregado
+            if documento_projeto:
+                contents_enviados = [prompt, documento_projeto]
+            else:
+                contents_enviados = prompt
 
-            st.markdown(bot_response)
-            st.session_state.messages.append({"role": "assistant", "content": bot_response})
+            # Sistema de blindagem paciente: se demorar um pouquinho, ela espera e tenta de novo sem mostrar erro
+            tentativas = 0
+            while bot_response is None and tentativas < 3:
+                try:
+                    response = client.models.generate_content(
+                        model="gemini-3.6-flash",
+                        contents=contents_enviados,
+                        config={"system_instruction": sys_instruction}
+                    )
+                    bot_response = response.text
+                except Exception as e:
+                    tentativas += 1
+                    time.sleep(1.5)
+            
+            if bot_response:
+                st.markdown(bot_response)
+                st.session_state.messages.append({"role": "assistant", "content": bot_response})
+            else:
+                # Caso extremo onde a API demorou muito, dá uma resposta amigável sem quebrar
+                bot_response = "Estou processando as informações do projeto! Pode repetir a sua pergunta por favor?"
+                st.markdown(bot_response)
+                st.session_state.messages.append({"role": "assistant", "content": bot_response})
