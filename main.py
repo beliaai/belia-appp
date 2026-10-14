@@ -73,8 +73,9 @@ instrucao_base = (
 
 system_prompt = instrucao_base + contexto.TEXTO_COMPLETO_PROJETO
 
+# Nome corrigido para gemini-1.5-flash-latest
 model = genai.GenerativeModel(
-    model_name="gemini-1.5-flash",
+    model_name="gemini-1.5-flash-latest",
     system_instruction=system_prompt
 )
 
