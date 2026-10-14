@@ -1,5 +1,6 @@
 import streamlit as st
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 import contexto
 
 st.set_page_config(page_title="BEL.IA - Expanciência 2026", page_icon="🤖", layout="centered")
@@ -59,8 +60,10 @@ except Exception:
     st.error("Chave não encontrada nos Secrets do Streamlit!")
     st.stop()
 
-genai.configure(api_key=API_KEY)
+# Cliente oficial da biblioteca moderna
+client = genai.Client(api_key=API_KEY)
 
+# Instrução de sistema segura
 instrucao_base = (
     "Você é a BEL.IA, a assistente virtual inteligente desenvolvida pelos alunos da 1ª série do Colégio Expansivo para a feira Expanciência 2026. "
     "Sua missão é conversar com o público e os jurados explicando o projeto 'Inteligência Artificial e Inteligência Humana na Prática'.\n\n"
@@ -72,12 +75,6 @@ instrucao_base = (
 )
 
 system_prompt = instrucao_base + contexto.TEXTO_COMPLETO_PROJETO
-
-# Inicializa o modelo gemini-1.5-flash com as instruções de sistema
-model = genai.GenerativeModel(
-    model_name="gemini-1.5-flash",
-    system_instruction=system_prompt
-)
 
 if "messages" not in st.session_state:
     st.session_state.messages = [
@@ -100,11 +97,20 @@ if prompt := st.chat_input("Pergunte algo para a BEL.IA..."):
     with st.chat_message("assistant", avatar=BOT_AVATAR):
         with st.spinner("Pensando..."):
             try:
-                # Chamada direta e ultra estável do generate_content
-                response = model.generate_content(prompt)
-                bot_response = response.text
+                response = client.models.generate_content(
+                    model="gemini-3.8-flash",
+                    contents=prompt,
+                    config=types.GenerateContentConfig(
+                        system_instruction=system_prompt,
+                        temperature=0.7
+                    )
+                )
+                if response and response.text:
+                    bot_response = response.text
+                else:
+                    bot_response = "Não consegui gerar uma resposta no momento. Pode tentar novamente?"
             except Exception as e:
-                bot_response = f"Erro técnico exato: {str(e)}"
+                bot_response = f"Erro ao conectar com a IA: {str(e)}"
 
             st.markdown(bot_response)
             st.session_state.messages.append({"role": "assistant", "content": bot_response})
