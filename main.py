@@ -68,20 +68,26 @@ except Exception:
     st.error("Chave não encontrada nos Secrets do Streamlit!")
     st.stop()
 
-# Instrução do sistema natural e sem repetições
+# Instrução do sistema focada em respostas diretas e sem autoapresentações repetitivas
 sys_instruction = (
     "Você é a BEL.IA, a assistente virtual oficial dos alunos da 1ª série do ensino médio na feira de ciências Expanciência 2026. "
-    "Sua principal função é responder dúvidas sobre o projeto da turma e o trabalho 'Cidade com Ciência' (consultando o documento PDF anexado quando necessário). "
-    "No entanto, você é uma inteligência artificial versátil e deve responder a qualquer outra pergunta geral (sobre cultura, ciência, etc.) de forma natural e amigável. "
-    "REGRAS IMPORTANTES DE COMPORTAMENTO: "
-    "1. Seja humana, natural e fluida. "
-    "2. NUNCA repita frases automáticas, comerciais ou convites para falar sobre a feira no final de todas as respostas. "
-    "3. Responda diretamente ao que o usuário perguntou, sem parecer um menu eletrônico ou bot de WhatsApp repetitivo. "
+    "Sua função é explicar o projeto da turma e o trabalho 'Cidade com Ciência' (consultando o documento PDF anexado quando necessário). "
+    "Você também pode responder a qualquer outra pergunta geral de forma amigável e inteligente. "
+    "REGRAS IMPORTANTES: "
+    "1. Como você já se apresentou na mensagem inicial do site, NUNCA volte a se apresentar ou a dizer que é a assistente da 1ª série durante a conversa. "
+    "2. Seja direta, humana e natural em todas as respostas. "
+    "3. NUNCA adicione frases de encerramento automáticas ou convites repetitivos sobre a feira ao final das respostas. "
     "4. REQUISITO CRÍTICO: Você DEVE SEMPRE responder aos usuários em português do Brasil."
 )
 
+# MENSAGEM INICIAL AUTOMÁTICA DA BEL.IA AO ABRIR O SITE
 if "messages" not in st.session_state:
-    st.session_state.messages = []
+    st.session_state.messages = [
+        {
+            "role": "assistant",
+            "content": "Olá! Eu sou a BEL.IA, a assistente virtual da 1ª série para a Expanciência 2026. Estou aqui para tirar suas dúvidas sobre o nosso projeto 'Cidade com Ciência', horários da nossa peça e eventos, ou responder a qualquer outra pergunta. Como posso te ajudar hoje?"
+        }
+    ]
 
 for message in st.session_state.messages:
     avatar = USER_AVATAR if message["role"] == "user" else BOT_AVATAR
@@ -98,10 +104,9 @@ if prompt := st.chat_input("Pergunte algo para a BEL.IA..."):
             client = genai.Client(api_key=API_KEY)
             bot_response = None
             
-            # Sistema de espera paciente: se atingir o limite de requisições, 
-            # o app aguarda pacientemente a cota liberar enquanto mantém o "Pensando..." ativo.
+            # Sistema de espera paciente em caso de pico de requisições
             max_tentativas = 5
-            tempo_espera = 3  # Segundos iniciais de pausa
+            tempo_espera = 3
             
             for tentativa in range(max_tentativas):
                 try:
@@ -111,12 +116,11 @@ if prompt := st.chat_input("Pergunte algo para a BEL.IA..."):
                         config={"system_instruction": sys_instruction}
                     )
                     bot_response = response.text
-                    break # Sucesso! Sai do loop e entrega a resposta
+                    break
                 except Exception as e:
-                    # Se ainda temos tentativas, espera um pouco mais e tenta de novo silenciosamente
                     if tentativa < max_tentativas - 1:
                         time.sleep(tempo_espera)
-                        tempo_espera += 2  # Aumenta progressivamente o tempo de espera (3s, 5s, 7s...)
+                        tempo_espera += 2
                     else:
                         bot_response = None
             
