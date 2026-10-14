@@ -59,10 +59,8 @@ except Exception:
     st.error("Chave não encontrada nos Secrets do Streamlit!")
     st.stop()
 
-# Configuração da biblioteca clássica
 genai.configure(api_key=API_KEY)
 
-# Configurando o modelo gemini-1.5-flash com as instruções de sistema
 model = genai.GenerativeModel(
     model_name="gemini-1.5-flash",
     system_instruction=(
@@ -97,7 +95,6 @@ if prompt := st.chat_input("Pergunte algo para a BEL.IA..."):
     with st.chat_message("assistant", avatar=BOT_AVATAR):
         with st.spinner("Pensando..."):
             try:
-                # Histórico de conversa limpo para o 1.5-flash processar perfeitamente
                 chat = model.start_chat(history=[])
                 response = chat.send_message(prompt)
                 bot_response = response.text
