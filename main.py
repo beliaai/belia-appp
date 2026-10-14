@@ -1,6 +1,7 @@
 import streamlit as st
 from google import genai
 import contexto
+import time
 
 st.set_page_config(page_title="BEL.IA - Expanciência 2026", page_icon="🤖", layout="centered")
 
@@ -65,8 +66,8 @@ sys_instruction = (
     "Você é a BEL.IA, a assistente virtual oficial dos alunos da 1ª série do Colégio Expansivo na feira Expanciência 2026. "
     "Sua função é responder a perguntas explicando detalhadamente e com profundidade toda a fundamentação teórica, o problema de pesquisa, os objetivos e os detalhes dos quatro grupos com base no documento oficial fornecido. "
     "REGRAS DE OURO: "
-    "1. Forneça respostas completas, detalhadas e articuladas. "
-    "2. Utilize as informações do documento oficial fornecido abaixo. "
+    "1. Forneça respostas completas, detalhadas, articuladas e excelentes para os jurados. "
+    "2. Utilize rigorosamente as informações do documento oficial fornecido abaixo. "
     "3. NUNCA se apresente novamente e NUNCA use frases automáticas no final. "
     "4. Responda sempre em português do Brasil, sem inserir códigos ou tags.\n\n"
     f"--- BASE DE CONHECIMENTO COMPLETA DO PROJETO ---\n{contexto.TEXTO_COMPLETO_PROJETO}"
@@ -92,16 +93,22 @@ if prompt := st.chat_input("Pergunte algo para a BEL.IA..."):
 
     with st.chat_message("assistant", avatar=BOT_AVATAR):
         with st.spinner("Pensando..."):
-            try:
-                # Atualizado para o modelo exigido pela API: gemini-3.8-flash
-                response = client.models.generate_content(
-                    model="gemini-3.8-flash",
-                    contents=prompt,
-                    config={"system_instruction": sys_instruction}
-                )
-                bot_response = response.text
-            except Exception as e:
-                bot_response = f"Erro técnico na API: {str(e)}"
+            bot_response = None
+            # Sistema de blindagem: tenta até 3 vezes caso o servidor dê oscilação de alta demanda
+            for tentativa in range(3):
+                try:
+                    response = client.models.generate_content(
+                        model="gemini-3.8-flash",
+                        contents=prompt,
+                        config={"system_instruction": sys_instruction}
+                    )
+                    bot_response = response.text
+                    break # Se deu certo, sai do loop
+                except Exception as e:
+                    if tentativa < 2:
+                        time.sleep(1) # Espera 1 segundo e tenta de novo automaticamente
+                    else:
+                        bot_response = "Estou com um fluxo intenso de acessos neste exato segundo. Por favor, repita a pergunta para eu te responder perfeitamente!"
 
             st.markdown(bot_response)
             st.session_state.messages.append({"role": "assistant", "content": bot_response})
