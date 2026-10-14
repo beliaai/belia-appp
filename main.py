@@ -63,15 +63,13 @@ except Exception:
 
 client = genai.Client(api_key=API_KEY)
 
-# Configuração correta de instrução de sistema exigida pela nova SDK do Google
 system_prompt = (
     "Você é a BEL.IA, a assistente virtual inteligente desenvolvida pelos alunos da 1ª série do Colégio Expansivo para a feira Expanciência 2026. "
     "Sua missão é conversar com o público e os jurados explicando o projeto sobre Inteligência Artificial e Inteligência Humana nas Profissões.\n\n"
     "DIRETRIZES DE RESPOSTA:\n"
-    "1. **Responda EXATAMENTE ao que foi perguntado**: Se o usuário perguntar sobre o projeto de forma geral, explique o tema, a proposta e os objetivos, sem incluir informações de culminância (datas, horários ou local) a menos que ele pergunte especificamente sobre isso.\n"
-    "2. **Seja Natural e Fluida**: Use suas próprias palavras, com explicações articuladas e didáticas, sem copiar blocos de texto prontos.\n"
-    "3. **Foco e Precisão**: Traga detalhes específicos apenas quando a pergunta for direcionada ao tema.\n"
-    "4. **Restrições**: NUNCA se apresente novamente e nunca inclua frases automáticas ou despedidas genéricas no final.\n\n"
+    "1. **Responda EXATAMENTE ao que foi perguntado**: Se perguntarem sobre um grupo específico (como o Grupo 1), detalhe apenas ele. Se perguntarem do projeto geral, explique o tema e objetivos sem falar de culminância (datas/local) a menos que pedido.\n"
+    "2. **Seja Natural e Fluida**: Use suas próprias palavras, com explicações articuladas e didáticas, sem copiar blocos rígidos de texto.\n"
+    "3. **Restrições**: NUNCA se apresente novamente e nunca inclua frases automáticas ou despedidas genéricas no final.\n\n"
     f"--- BASE DE CONHECIMENTO COMPLETA DO PROJETO ---\n{contexto.TEXTO_COMPLETO_PROJETO}"
 )
 
@@ -97,26 +95,20 @@ if prompt := st.chat_input("Pergunte algo para a BEL.IA..."):
         with st.spinner("Pensando..."):
             bot_response = None
             
-            # Chamada correta com o modelo 3.8-flash utilizando types.GenerateContentConfig
-            for tentativa in range(4):
-                try:
-                    response = client.models.generate_content(
-                        model="gemini-3.8-flash",
-                        contents=prompt,
-                        config=types.GenerateContentConfig(
-                            system_instruction=system_prompt,
-                            temperature=0.7
-                        )
+            # Executa a chamada sem inventar textos falsos
+            try:
+                response = client.models.generate_content(
+                    model="gemini-3.8-flash",
+                    contents=prompt,
+                    config=types.GenerateContentConfig(
+                        system_instruction=system_prompt,
+                        temperature=0.7
                     )
-                    if response and response.text:
-                        bot_response = response.text
-                        break
-                except Exception as e:
-                    time.sleep(1.5)
-            
-            # Se por algum motivo persistir, dá uma resposta focada no projeto em vez de falhar
-            if not bot_response:
-                bot_response = "O nosso projeto da 1ª série para a Expanciência 2026 intitula-se 'Inteligência Artificial e Inteligência Humana na Prática'. Ele explora as transformações no mercado de trabalho através de quatro frentes temáticas. Poderia repetir a sua pergunta para detalharmos melhor?"
+                )
+                if response and response.text:
+                    bot_response = response.text
+            except Exception as e:
+                bot_response = f"Erro de conexão com a API: {str(e)}"
 
             st.markdown(bot_response)
             st.session_state.messages.append({"role": "assistant", "content": bot_response})
