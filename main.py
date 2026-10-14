@@ -1,8 +1,6 @@
 import streamlit as st
-from google import genai
-from google.genai import types
+import google.generativeai as genai
 import contexto
-import time
 
 st.set_page_config(page_title="BEL.IA - Expanciência 2026", page_icon="🤖", layout="centered")
 
@@ -61,16 +59,21 @@ except Exception:
     st.error("Chave não encontrada nos Secrets do Streamlit!")
     st.stop()
 
-client = genai.Client(api_key=API_KEY)
+# Configuração da biblioteca clássica
+genai.configure(api_key=API_KEY)
 
-system_prompt = (
-    "Você é a BEL.IA, a assistente virtual inteligente desenvolvida pelos alunos da 1ª série do Colégio Expansivo para a feira Expanciência 2026. "
-    "Sua missão é conversar com o público e os jurados explicando o projeto sobre Inteligência Artificial e Inteligência Humana nas Profissões.\n\n"
-    "DIRETRIZES DE RESPOSTA:\n"
-    "1. **Responda EXATAMENTE ao que foi perguntado**: Se perguntarem sobre um grupo específico (como o Grupo 1), detalhe apenas ele. Se perguntarem do projeto geral, explique o tema e objetivos sem falar de culminância (datas/local) a menos que pedido.\n"
-    "2. **Seja Natural e Fluida**: Use suas próprias palavras, com explicações articuladas e didáticas, sem copiar blocos rígidos de texto.\n"
-    "3. **Restrições**: NUNCA se apresente novamente e nunca inclua frases automáticas ou despedidas genéricas no final.\n\n"
-    f"--- BASE DE CONHECIMENTO COMPLETA DO PROJETO ---\n{contexto.TEXTO_COMPLETO_PROJETO}"
+# Configurando o modelo gemini-1.5-flash com as instruções de sistema
+model = genai.GenerativeModel(
+    model_name="gemini-1.5-flash",
+    system_instruction=(
+        "Você é a BEL.IA, a assistente virtual inteligente desenvolvida pelos alunos da 1ª série do Colégio Expansivo para a feira Expanciência 2026. "
+        "Sua missão é conversar com o público e os jurados explicando o projeto 'Inteligência Artificial e Inteligência Humana na Prática'.\n\n"
+        "DIRETRIZES DE RESPOSTA:\n"
+        "1. **Responda EXATAMENTE ao que foi perguntado**: Se perguntarem sobre um grupo específico, detalhe apenas ele. Se perguntarem do projeto geral, explique o tema e objetivos sem falar de culminância (datas/local) a menos que pedido.\n"
+        "2. **Seja Natural e Fluida**: Use suas próprias palavras, com explicações articuladas e didáticas, sem copiar blocos rígidos de texto.\n"
+        "3. **Restrições**: NUNCA se apresente novamente e nunca inclua frases automáticas ou despedidas genéricas no final.\n\n"
+        f"--- BASE DE CONHECIMENTO COMPLETA DO PROJETO ---\n{contexto.TEXTO_COMPLETO_PROJETO}"
+    )
 )
 
 if "messages" not in st.session_state:
@@ -93,22 +96,13 @@ if prompt := st.chat_input("Pergunte algo para a BEL.IA..."):
 
     with st.chat_message("assistant", avatar=BOT_AVATAR):
         with st.spinner("Pensando..."):
-            bot_response = None
-            
-            # Executa a chamada sem inventar textos falsos
             try:
-                response = client.models.generate_content(
-                    model="gemini-3.8-flash",
-                    contents=prompt,
-                    config=types.GenerateContentConfig(
-                        system_instruction=system_prompt,
-                        temperature=0.7
-                    )
-                )
-                if response and response.text:
-                    bot_response = response.text
+                # Histórico de conversa limpo para o 1.5-flash processar perfeitamente
+                chat = model.start_chat(history=[])
+                response = chat.send_message(prompt)
+                bot_response = response.text
             except Exception as e:
-                bot_response = f"Erro de conexão com a API: {str(e)}"
+                bot_response = "Desculpe, tive uma pequena oscilação no processamento. Pode repetir a sua pergunta?"
 
             st.markdown(bot_response)
             st.session_state.messages.append({"role": "assistant", "content": bot_response})
