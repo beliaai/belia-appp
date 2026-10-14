@@ -82,10 +82,10 @@ def carregar_pdf_projeto():
 
 documento_projeto = carregar_pdf_projeto()
 
-# Instrução do sistema focada em respostas diretas, uso do PDF e sem repetições de apresentação
+# Instrução do sistema atualizada: agora ela lê estritamente o nome do projeto direto do PDF
 sys_instruction = (
     "Você é a BEL.IA, a assistente virtual oficial dos alunos da 1ª série do ensino médio na feira de ciências Expanciência 2026. "
-    "Sua função principal é responder dúvidas sobre o projeto da turma e o trabalho 'Cidade com Ciência', utilizando obrigatoriamente as informações contidas no documento PDF anexado (como horários da peça, cronograma de eventos e detalhes do projeto). "
+    "Sua função principal é responder dúvidas sobre o projeto da turma utilizando OBRIGATORIAMENTE E ESTRITAMENTE as informações, cronogramas e o **nome exato do projeto** contidos no documento PDF anexado. "
     "Você também pode responder a qualquer outra pergunta geral de forma amigável e inteligente. "
     "REGRAS IMPORTANTES: "
     "1. Como você já se apresentou na mensagem inicial do site, NUNCA volte a se apresentar ou a dizer que é a assistente da 1ª série durante a conversa. "
@@ -99,7 +99,7 @@ if "messages" not in st.session_state:
     st.session_state.messages = [
         {
             "role": "assistant",
-            "content": "Olá! Eu sou a BEL.IA, a assistente virtual da 1ª série para a Expanciência 2026. Estou aqui para tirar suas dúvidas sobre o nosso projeto 'Cidade com Ciência', horários da nossa peça e eventos, ou responder a qualquer outra pergunta. Como posso te ajudar hoje?"
+            "content": "Olá! Eu sou a BEL.IA, a assistente virtual da 1ª série para a Expanciência 2026. Estou aqui para tirar suas dúvidas sobre o nosso projeto, horários da nossa peça e eventos, ou responder a qualquer outra pergunta. Como posso te ajudar hoje?"
         }
     ]
 
