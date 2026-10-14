@@ -61,13 +61,50 @@ except Exception:
 
 genai.configure(api_key=API_KEY)
 
+# Instrução de sistema segura e sem erros de sintaxe
+instrucao_base = (
+    "Você é a BEL.IA, a assistente virtual inteligente desenvolvida pelos alunos da 1ª série do Colégio Expansivo para a feira Expanciência 2026. "
+    "Sua missão é conversar com o público e os jurados explicando o projeto 'Inteligência Artificial e Inteligência Humana na Prática'.\n\n"
+    "DIRETRIZES DE RESPOSTA:\n"
+    "1. **Responda EXATAMENTE ao que foi perguntado**: Se perguntarem sobre um grupo específico, detalhe apenas ele. Se perguntarem do projeto geral, explique o tema e objetivos sem falar de culminância (datas/local) a menos que pedido.\n"
+    "2. **Seja Natural e Fluida**: Use suas próprias palavras, com explicações articuladas e didáticas, sem copiar blocos rígidos de texto.\n"
+    "3. **Restrições**: NUNCA se apresente novamente e nunca inclua frases automáticas ou despedidas genéricas no final.\n\n"
+    "--- BASE DE CONHECIMENTO COMPLETA DO PROJETO ---\n"
+)
+
+system_prompt = instrucao_base + contexto.TEXTO_COMPLETO_PROJETO
+
 model = genai.GenerativeModel(
     model_name="gemini-1.5-flash",
-    system_instruction=(
-        "Você é a BEL.IA, a assistente virtual inteligente desenvolvida pelos alunos da 1ª série do Colégio Expansivo para a feira Expanciência 2026. "
-        "Sua missão é conversar com o público e os jurados explicando o projeto 'Inteligência Artificial e Inteligência Humana na Prática'.\n\n"
-        "DIRETRIZES DE RESPOSTA:\n"
-        "1. **Responda EXATAMENTE ao que foi perguntado**: Se perguntarem sobre um grupo específico, detalhe apenas ele. Se perguntarem do projeto geral, explique o tema e objetivos sem falar de culminância (datas/local) a menos que pedido.\n"
-        "2. **Seja Natural e Fluida**: Use suas próprias palavras, com explicações articuladas e didáticas, sem copiar blocos rígidos de texto.\n"
-        "3. **Restrições**: NUNCA se apresente novamente e nunca inclua frases automáticas ou despedidas genéricas no final.\n\n"
-        f"--- BASE DE CONHEC
+    system_instruction=system_prompt
+)
+
+if "messages" not in st.session_state:
+    st.session_state.messages = [
+        {
+            "role": "assistant",
+            "content": "Olá! Eu sou a BEL.IA, a assistente virtual da 1ª série para a Expanciência 2026. Estou pronta para explicar todos os detalhes do nosso projeto 'Inteligência Artificial e Inteligência Humana na Prática' para você. O que gostaria de saber?"
+        }
+    ]
+
+for message in st.session_state.messages:
+    avatar = USER_AVATAR if message["role"] == "user" else BOT_AVATAR
+    with st.chat_message(message["role"], avatar=avatar):
+        st.markdown(message["content"])
+
+if prompt := st.chat_input("Pergunte algo para a BEL.IA..."):
+    st.session_state.messages.append({"role": "user", "content": prompt})
+    with st.chat_message("user", avatar=USER_AVATAR):
+        st.markdown(prompt)
+
+    with st.chat_message("assistant", avatar=BOT_AVATAR):
+        with st.spinner("Pensando..."):
+            try:
+                chat = model.start_chat(history=[])
+                response = chat.send_message(prompt)
+                bot_response = response.text
+            except Exception as e:
+                bot_response = f"Erro técnico retornado: {str(e)}"
+
+            st.markdown(bot_response)
+            st.session_state.messages.append({"role": "assistant", "content": bot_response})
