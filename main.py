@@ -93,15 +93,14 @@ if prompt := st.chat_input("Pergunte algo para a BEL.IA..."):
     with st.chat_message("assistant", avatar=BOT_AVATAR):
         with st.spinner("Pensando..."):
             try:
-                # Usando o modelo gemini-3.6-flash que você confirmou que aceita
+                # Alterado para o modelo estável gemini-2.5-flash para evitar sobrecarga (503)
                 response = client.models.generate_content(
-                    model="gemini-3.6-flash",
+                    model="gemini-2.5-flash",
                     contents=prompt,
                     config={"system_instruction": sys_instruction}
                 )
                 bot_response = response.text
             except Exception as e:
-                # Se der qualquer erro, ele mostra o erro real na tela para sabermos exatamente o que é
                 bot_response = f"Erro técnico na API: {str(e)}"
 
             st.markdown(bot_response)
