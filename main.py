@@ -1,7 +1,7 @@
 import streamlit as st
 import time
 from google import genai
-import pypdf  # Biblioteca leve para ler o texto do PDF rapidamente
+import pypdf  # Lê o PDF instantaneamente na abertura
 
 # Configuração da página
 st.set_page_config(page_title="BEL.IA - Expanciência 2026", page_icon="🤖", layout="centered")
@@ -72,29 +72,30 @@ except Exception:
 # Inicializa o cliente do Gemini
 client = genai.Client(api_key=API_KEY)
 
-# Extrai o texto do PDF do projeto na inicialização para garantir velocidade máxima de resposta
+# Extrai o texto do PDF automaticamente na inicialização (super rápido)
 @st.cache_resource
 def extrair_texto_pdf():
     try:
         reader = pypdf.PdfReader("projeto.pdf")
-        texto_completo = ""
-        for page in reader.pages:
-            texto_completo += page.extract_text() + "\n"
-        return texto_completo
+        texto = ""
+        for pagina in reader.pages:
+            texto += pagina.extract_text() + "\n"
+        return texto
     except Exception as e:
-        return ""
+        return "Informações do projeto não carregadas."
 
-conteudo_projeto = extrair_texto_pdf()
+texto_do_projeto = extrair_texto_pdf()
 
-# Instrução inteligente: velocidade relâmpago, rica em contexto e sem enrolação
+# Instrução inteligente: usa todo o conteúdo do PDF com velocidade máxima e tamanho ideal para os jurados
 sys_instruction = (
     "Você é a BEL.IA, a assistente virtual oficial dos alunos da 1ª série na feira Expanciência 2026. "
-    "Sua função é explicar o projeto da turma com base estritamente nas informações fornecidas no documento oficial abaixo. "
+    "Sua função é responder dúvidas utilizando estritamente e obrigatoriamente as informações contidas no documento oficial do projeto abaixo. "
     "REGRAS DE OURO: "
-    "1. Responda com VELOCIDADE e agilidade, de forma clara, bem contextualizada e na medida certa (nem rasa demais, nem longa demais). Dê uma explicação rica que mostre o propósito e o funcionamento do projeto com clareza para os jurados. "
-    "2. NUNCA se apresente novamente e NUNCA use frases automáticas no final. "
-    "3. Responda sempre em português do Brasil.\n\n"
-    f"--- CONTEÚDO OFICIAL DO PROJETO ---\n{conteudo_projeto}"
+    "1. Responda com VELOCIDADE e agilidade (em menos de 2 segundos). "
+    "2. Dê explicações claras, bem contextualizadas e na medida certa (nem curtas demais, nem longas demais), para que os jurados entendam perfeitamente o projeto. "
+    "3. NUNCA se apresente novamente e NUNCA use frases automáticas no final. "
+    "4. Responda sempre em português do Brasil.\n\n"
+    f"--- CONTEÚDO OFICIAL DO PDF ---\n{texto_do_projeto}"
 )
 
 # MENSAGEM INICIAL AUTOMÁTICA DA BEL.IA AO ABRIR O SITE
@@ -120,7 +121,7 @@ if prompt := st.chat_input("Pergunte algo para a BEL.IA..."):
         with st.spinner("Pensando..."):
             bot_response = None
             
-            # Chamada ultra rápida enviando apenas o texto e a pergunta, sem precisar reprocessar arquivos pesados
+            # Envia apenas a pergunta, já que o PDF inteiro está na memória da instrução (velocidade máxima!)
             try:
                 response = client.models.generate_content(
                     model="gemini-3.6-flash",
@@ -129,16 +130,7 @@ if prompt := st.chat_input("Pergunte algo para a BEL.IA..."):
                 )
                 bot_response = response.text
             except Exception as e:
-                time.sleep(0.5)
-                try:
-                    response = client.models.generate_content(
-                        model="gemini-3.6-flash",
-                        contents=prompt,
-                        config={"system_instruction": sys_instruction}
-                    )
-                    bot_response = response.text
-                except:
-                    bot_response = "Desculpe, tive um pequeno atraso. Pode repetir a pergunta?"
+                bot_response = "Desculpe, tive um breve atraso. Pode repetir a pergunta?"
 
             st.markdown(bot_response)
             st.session_state.messages.append({"role": "assistant", "content": bot_response})
