@@ -72,30 +72,46 @@ except Exception:
 # Inicializa o cliente do Gemini
 client = genai.Client(api_key=API_KEY)
 
-# Lê o texto do PDF internamente de forma blindada e segura
+# Lê o PDF inteiro uma única vez ao abrir o site para termos a base completa
 @st.cache_resource
-def ler_pdf_seguro():
+def carregar_base_pdf():
     try:
         reader = pypdf.PdfReader("projeto.pdf")
-        texto_extraido = ""
+        texto_total = ""
         for pagina in reader.pages:
-            texto_extraido += pagina.extract_text() + "\n"
-        return texto_extraido
+            texto_total += pagina.extract_text() + "\n"
+        return texto_total
     except Exception as e:
-        return "Projeto desenvolvido pelos alunos da 1ª série para a feira Expanciência 2026."
+        return "Projeto dos alunos da 1ª série para a Expanciência 2026."
 
-conteudo_pdf = ler_pdf_seguro()
+base_completa = carregar_base_pdf()
 
-# Instrução rigorosa para garantir respostas perfeitas e na medida certa
+# Função inteligente sugerida pela Grazi: filtra apenas o trecho do PDF relevante para a pergunta
+def buscar_trecho_relevante(pergunta, texto_completo):
+    # Se a pergunta for muito ampla (ex: "sobre o que é o projeto"), retorna uma boa parte inicial/geral
+    palavras = pergunta.lower().split()
+    paragrafos = texto_completo.split('\n')
+    
+    trechos_encontrados = []
+    for p in paragrafos:
+        # Se qualquer palavra da pergunta aparecer no parágrafo, ele é relevante
+        if any(palavra in p.lower() for palavra in palavras if len(palavra) > 3):
+            trechos_encontrados.append(p)
+            
+    # Se achou trechos específicos, une eles; senão, entrega o texto completo resumido para garantir
+    if trechos_encontrados:
+        return "\n".join(trechos_encontrados[:10])  # Pega até 10 linhas mais relevantes para ser rápido
+    else:
+        return texto_completo[:1500]  # Retorna um resumo inicial caso não ache palavra exata
+
+# Instrução principal da BEL.IA
 sys_instruction = (
     "Você é a BEL.IA, a assistente virtual oficial dos alunos da 1ª série na feira Expanciência 2026. "
-    "Sua função é responder dúvidas sobre o projeto utilizando obrigatoriamente e exclusivamente o conteúdo oficial fornecido abaixo. "
+    "Sua função é responder dúvidas sobre o projeto de forma rápida, inteligente, clara e com um tamanho equilibrado (ideal para os jurados). "
     "REGRAS DE OURO: "
-    "1. Dê explicações claras, inteligentes, bem contextualizadas e com um tamanho equilibrado (nem superficiais, nem longas demais), ideais para encantar os jurados. "
+    "1. Responda estritamente com base no trecho do documento oficial fornecido abaixo para a pergunta atual. "
     "2. NUNCA se apresente novamente e NUNCA use frases automáticas no final. "
-    "3. NUNCA diga que está processando arquivos ou que houve falha; responda sempre com firmeza e precisão. "
-    "4. Responda sempre em português do Brasil.\n\n"
-    f"--- CONTEÚDO OFICIAL DO PROJETO ---\n{conteudo_pdf}"
+    "3. Responda sempre em português do Brasil."
 )
 
 # MENSAGEM INICIAL AUTOMÁTICA DA BEL.IA AO ABRIR O SITE
@@ -119,16 +135,23 @@ if prompt := st.chat_input("Pergunte algo para a BEL.IA..."):
 
     with st.chat_message("assistant", avatar=BOT_AVATAR):
         with st.spinner("Pensando..."):
-            # Chamada direta, instantânea e sem gargalos
+            # APLICAÇÃO DA SUA IDEIA: Filtra o PDF focando apenas no que tem a ver com a pergunta
+            trecho_focado = buscar_trecho_relevante(prompt, base_completa)
+            
+            prompt_com_contexto_focado = (
+                f"Pergunta do usuário: {prompt}\n\n"
+                f"Informações específicas extraídas do PDF para responder:\n{trecho_focado}"
+            )
+
             try:
                 response = client.models.generate_content(
                     model="gemini-3.6-flash",
-                    contents=prompt,
+                    contents=prompt_com_contexto_focado,
                     config={"system_instruction": sys_instruction}
                 )
                 bot_response = response.text
             except Exception as e:
-                bot_response = "Desculpe, tive um pequeno pique na conexão. Pode repetir a sua pergunta?"
+                bot_response = "Desculpe, pode repetir a pergunta por favor?"
 
             st.markdown(bot_response)
             st.session_state.messages.append({"role": "assistant", "content": bot_response})
