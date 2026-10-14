@@ -68,10 +68,24 @@ except Exception:
     st.error("Chave não encontrada nos Secrets do Streamlit!")
     st.stop()
 
-# Instrução do sistema focada em respostas diretas e sem autoapresentações repetitivas
+# Inicializa o cliente do Gemini
+client = genai.Client(api_key=API_KEY)
+
+# Faz o upload automático do PDF do projeto hospedado no repositório do GitHub
+@st.cache_resource
+def carregar_pdf_projeto():
+    try:
+        pdf_file = client.files.upload(file="projeto.pdf")
+        return pdf_file
+    except Exception as e:
+        return None
+
+documento_projeto = carregar_pdf_projeto()
+
+# Instrução do sistema focada em respostas diretas, uso do PDF e sem repetições de apresentação
 sys_instruction = (
     "Você é a BEL.IA, a assistente virtual oficial dos alunos da 1ª série do ensino médio na feira de ciências Expanciência 2026. "
-    "Sua função é explicar o projeto da turma e o trabalho 'Cidade com Ciência' (consultando o documento PDF anexado quando necessário). "
+    "Sua função principal é responder dúvidas sobre o projeto da turma e o trabalho 'Cidade com Ciência', utilizando obrigatoriamente as informações contidas no documento PDF anexado (como horários da peça, cronograma de eventos e detalhes do projeto). "
     "Você também pode responder a qualquer outra pergunta geral de forma amigável e inteligente. "
     "REGRAS IMPORTANTES: "
     "1. Como você já se apresentou na mensagem inicial do site, NUNCA volte a se apresentar ou a dizer que é a assistente da 1ª série durante a conversa. "
@@ -101,33 +115,28 @@ if prompt := st.chat_input("Pergunte algo para a BEL.IA..."):
 
     with st.chat_message("assistant", avatar=BOT_AVATAR):
         with st.spinner("Pensando..."):
-            client = genai.Client(api_key=API_KEY)
             bot_response = None
             
-            # Sistema de espera paciente em caso de pico de requisições
-            max_tentativas = 5
-            tempo_espera = 3
-            
-            for tentativa in range(max_tentativas):
+            # Prepara os conteúdos enviando a pergunta junto com o arquivo PDF do projeto
+            if documento_projeto:
+                contents_enviados = [prompt, documento_projeto]
+            else:
+                contents_enviados = prompt
+
+            # Tentativas infinitas em segundo plano mantendo a animação "Pensando..." ativa
+            tempo_espera = 2
+            while bot_response is None:
                 try:
                     response = client.models.generate_content(
                         model="gemini-3.6-flash",
-                        contents=prompt,
+                        contents=contents_enviados,
                         config={"system_instruction": sys_instruction}
                     )
                     bot_response = response.text
-                    break
                 except Exception as e:
-                    if tentativa < max_tentativas - 1:
-                        time.sleep(tempo_espera)
-                        tempo_espera += 2
-                    else:
-                        bot_response = None
+                    time.sleep(tempo_espera)
+                    if tempo_espera < 5:
+                        tempo_espera += 1
             
-            if bot_response:
-                st.markdown(bot_response)
-                st.session_state.messages.append({"role": "assistant", "content": bot_response})
-            else:
-                erro_msg = "Opa! Estou com uma alta demanda de perguntas neste exato segundo. Por favor, envie a sua pergunta novamente em instantes!"
-                st.warning(erro_msg)
-                st.session_state.messages.append({"role": "assistant", "content": erro_msg})
+            st.markdown(bot_response)
+            st.session_state.messages.append({"role": "assistant", "content": bot_response})
