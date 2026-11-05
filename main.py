@@ -97,7 +97,7 @@ if prompt := st.chat_input("Pergunte algo para a BEL.IA..."):
         with st.spinner("Pensando..."):
             try:
                 response = client.models.generate_content(
-                    model="gemini-1.5-flash",
+                    model="models/gemini-1.5-flash",
                     contents=prompt,
                     config=types.GenerateContentConfig(
                         system_instruction=system_prompt,
