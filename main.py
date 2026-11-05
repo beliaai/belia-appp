@@ -1,6 +1,5 @@
 import streamlit as st
-from google import genai
-from google.genai import types
+import google.generativeai as genai
 import contexto
 
 st.set_page_config(page_title="BEL.IA - Expanciência 2026", page_icon="🤖", layout="centered")
@@ -54,15 +53,21 @@ st.markdown(
 USER_AVATAR = "user.png"  
 BOT_AVATAR = "bot.png"    
 
-try:
-    API_KEY = st.secrets["GEMINI_API_KEY"].strip()
-except Exception:
-    st.error("Chave não encontrada nos Secrets do Streamlit!")
+# Recolhemos todas as chaves disponíveis de forma segura nos Secrets do Streamlit
+chaves_api = []
+for i in ["GEMINI_API_KEY", "GEMINI_API_KEY_2", "GEMINI_API_KEY_3"]:
+    try:
+        k = st.secrets.get(i)
+        if k:
+            chaves_api.append(k.strip())
+    except Exception:
+        pass
+
+if not chaves_api:
+    st.error("Nenhuma chave de API encontrada nos Secrets do Streamlit!")
     st.stop()
 
-client = genai.Client(api_key=API_KEY)
-
-instrucao_base = (
+instrucao_sistema = (
     "Você é a BEL.IA, a assistente virtual inteligente desenvolvida pelos alunos da 1ª série do Colégio Expansivo para a feira Expanciência 2026. "
     "Sua missão é conversar com o público e os jurados explicando o projeto 'Inteligência Artificial e Inteligência Humana na Prática'.\n\n"
     "DIRETRIZES DE RESPOSTA:\n"
@@ -71,9 +76,7 @@ instrucao_base = (
     "3. **Seja Natural e Fluida**: Use explicações articuladas e didáticas, mantendo uma conversa agradável.\n"
     "4. **Restrições**: NUNCA se apresente novamente e nunca inclua frases automáticas ou despedidas genéricas no final.\n\n"
     "--- BASE DE CONHECIMENTO COMPLETA DO PROJETO ---\n"
-)
-
-system_prompt = instrucao_base + contexto.TEXTO_COMPLETO_PROJETO
+) + contexto.TEXTO_COMPLETO_PROJETO
 
 if "messages" not in st.session_state:
     st.session_state.messages = [
@@ -95,22 +98,33 @@ if prompt := st.chat_input("Pergunte algo para a BEL.IA..."):
 
     with st.chat_message("assistant", avatar=BOT_AVATAR):
         with st.spinner("Pensando..."):
-            try:
-                response = client.models.generate_content(
-                    model="models/gemini-1.5-flash",
-                    contents=prompt,
-                    config=types.GenerateContentConfig(
-                        system_instruction=system_prompt,
-                        temperature=0.7,
-                        max_output_tokens=1500
+            bot_response = None
+            
+            # Tenta enviar a mensagem usando o modelo 3.6, alternando entre as chaves se houver erro (como 503)
+            for idx, chave in enumerate(chaves_api):
+                try:
+                    genai.configure(api_key=chave)
+                    model = genai.GenerativeModel(
+                        model_name="gemini-3.6-flash",
+                        system_instruction=instrucao_sistema
                     )
-                )
-                if response and hasattr(response, 'text') and response.text:
-                    bot_response = response.text
-                else:
-                    bot_response = "A IA processou, mas não retornou texto. Tente novamente."
-            except Exception as e:
-                bot_response = f"Erro ao conectar com a IA: {str(e)}"
+                    
+                    chat = model.start_chat(history=[
+                        {"role": "user" if m["role"] == "user" else "model", "parts": [m["content"]]}
+                        for m in st.session_state.messages[:-1]
+                    ])
+                    response = chat.send_message(prompt)
+                    
+                    if response and response.text:
+                        bot_response = response.text
+                        break 
+                except Exception as e:
+                    if idx == len(chaves_api) - 1:
+                        bot_response = f"Erro de conexão com os servidores (503/Indisponível): {str(e)}"
+                    continue
+
+            if not bot_response:
+                bot_response = "Não foi possível obter resposta no momento. Tente novamente."
 
             st.markdown(bot_response)
             st.session_state.messages.append({"role": "assistant", "content": bot_response})
