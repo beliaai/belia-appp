@@ -100,15 +100,16 @@ if prompt := st.chat_input("Pergunte algo para a BEL.IA..."):
                     contents=prompt,
                     config=types.GenerateContentConfig(
                         system_instruction=system_prompt,
-                        temperature=0.7
+                        temperature=0.7,
+                        max_output_tokens=800
                     )
                 )
-                if response and response.text:
+                if response and hasattr(response, 'text') and response.text:
                     bot_response = response.text
                 else:
-                    bot_response = "Não consegui gerar uma resposta no momento. Pode tentar novamente?"
+                    bot_response = "A IA processou, mas não retornou texto. Tente novamente."
             except Exception as e:
-                bot_response = f"Erro ao conectar com a IA: {str(e)}"
+                bot_response = f"Erro de conexão: {str(e)}"
 
             st.markdown(bot_response)
             st.session_state.messages.append({"role": "assistant", "content": bot_response})
