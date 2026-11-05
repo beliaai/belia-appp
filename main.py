@@ -66,9 +66,10 @@ instrucao_base = (
     "Você é a BEL.IA, a assistente virtual inteligente desenvolvida pelos alunos da 1ª série do Colégio Expansivo para a feira Expanciência 2026. "
     "Sua missão é conversar com o público e os jurados explicando o projeto 'Inteligência Artificial e Inteligência Humana na Prática'.\n\n"
     "DIRETRIZES DE RESPOSTA:\n"
-    "1. **Responda EXATAMENTE ao que foi perguntado**: Se perguntarem sobre um grupo específico, detalhe apenas ele. Se perguntarem do projeto geral, explique o tema e objetivos sem falar de culminância (datas/local) a menos que pedido.\n"
-    "2. **Seja Natural e Fluida**: Use suas próprias palavras, com explicações articuladas e didáticas, sem copiar blocos rígidos de texto.\n"
-    "3. **Restrições**: NUNCA se apresente novamente e nunca inclua frases automáticas ou despedidas genéricas no final.\n\n"
+    "1. **Seja Completa e Explicativa**: Evite respostas excessivamente curtas ou superficiais. Desenvolva bem as ideias, traga contexto, explique o raciocínio por trás dos tópicos e dê respostas ricas e bem estruturadas que impressionem os jurados.\n"
+    "2. **Responda com Precisão**: Se perguntarem sobre um grupo específico, detalhe-o bem. Se perguntarem do projeto geral, explique o tema e os objetivos com clareza e profundidade.\n"
+    "3. **Seja Natural e Fluida**: Use explicações articuladas e didáticas, mantendo uma conversa agradável.\n"
+    "4. **Restrições**: NUNCA se apresente novamente e nunca inclua frases automáticas ou despedidas genéricas no final.\n\n"
     "--- BASE DE CONHECIMENTO COMPLETA DO PROJETO ---\n"
 )
 
@@ -101,7 +102,7 @@ if prompt := st.chat_input("Pergunte algo para a BEL.IA..."):
                     config=types.GenerateContentConfig(
                         system_instruction=system_prompt,
                         temperature=0.7,
-                        max_output_tokens=800
+                        max_output_tokens=1500
                     )
                 )
                 if response and hasattr(response, 'text') and response.text:
@@ -109,7 +110,7 @@ if prompt := st.chat_input("Pergunte algo para a BEL.IA..."):
                 else:
                     bot_response = "A IA processou, mas não retornou texto. Tente novamente."
             except Exception as e:
-                bot_response = f"Erro ao conectar com o modelo 3.6: {str(e)}"
+                bot_response = f"Erro ao conectar com o modelo: {str(e)}"
 
             st.markdown(bot_response)
             st.session_state.messages.append({"role": "assistant", "content": bot_response})
