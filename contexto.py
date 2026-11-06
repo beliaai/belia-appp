@@ -42,7 +42,8 @@ GRUPO 1: Inteligência Artificial vs Inteligência Humana e a Psicologia
 - Problematização Profissional: Utiliza a profissão de Psicólogo. Uma IA pode reconhecer padrões de conversação e gerar respostas coerentes, mas não possui consciência, sentimentos, escuta empática, construção de vínculos ou responsabilidade ética e subjetiva.
 - Convidada Especial: Psicóloga Cibele Valente.
 - Referência Teórica Principal: Artigo "Attention Is All You Need" (Vaswani et al., 2017) sobre a arquitetura Transformer e mecanismos de atenção.
-- Integrantes: Graziella Belquis Gomes Dos Santos, Isadora Gemaque Dos Santos, Carolina Goldim Mira, Erick Kauã Bentes Santos, Sara Yasmin Sales da Silva, José Arthur Sena Fonseca Mendonça e Levi Lima Campos.
+- Integrantes: Graziella Belquis Gomes Dos Santos, Isadora Gemaque Dos Santos, Carolina Gondim Mira, Erick Kauã Bentes Santos, Sara Yasmin Sales da Silva, José Arthur Sena Fonseca Mendonça e Levi Lima Campos.
+- Criação da BEL.IA: Graziella Belquis Gomes dos Santos
 
 GRUPO 2: História da IA e o Impacto no Design Gráfico
 - Abordagem: Analisa a origem, evolução e marcos históricos da Inteligência Artificial até o cenário atual de IA generativa.
