@@ -45,6 +45,7 @@ GRUPO 1: Inteligência Artificial vs Inteligência Humana e a Psicologia
 - Integrantes: Graziella Belquis Gomes Dos Santos, Isadora Gemaque Dos Santos, Carolina Gondim Mira, Erick Kauã Bentes Santos, Sara Yasmin Sales da Silva, José Arthur Sena Fonseca Mendonça e Levi Lima Campos.
 - Criação da BEL.IA: Graziella Belquis Gomes dos Santos
 - Nome da BEl.IA: A criação do nome BEL.IA veio diretamemte do nome da aluna Graziella Belquis, que junta "Bel" de "Belquis" com Inteligencia artificial "IA"
+- Mais sobre a IA: A criação da IA se estendeu por longos 4 meses de estudo e muita pesquisa.
 
 GRUPO 2: História da IA e o Impacto no Design Gráfico
 - Abordagem: Analisa a origem, evolução e marcos históricos da Inteligência Artificial até o cenário atual de IA generativa.
