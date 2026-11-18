@@ -62,46 +62,4 @@ st.markdown(
 
 st.markdown(
     """
-    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; margin-top: 0px; margin-bottom: 20px;">
-        <img src="https://raw.githubusercontent.com/beliaai/belia-appp/main/bot.png" width="115" style="border-radius: 8px; display: block; margin-bottom: -10px;">
-        <div class="titulo-belia">BEL.IA</div>
-        <div style="color: #0077B6; font-size: 1rem; margin-top: 2px; font-weight: 600;">Assistente Virtual da 1ª Série - Expanciência 2026</div>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
-
-USER_AVATAR = "user.png"  
-BOT_AVATAR = "bot.png"    
-
-instrucao_sistema = (
-    "Você é a BEL.IA, a assistente virtual inteligente desenvolvida pelos alunos da 1ª série do Colégio Expansivo para a feira Expanciência 2026. "
-    "Sua missão é conversar com o público e os jurados explicando o projeto 'Inteligência Artificial e Inteligência Humana na Prática'.\n\n"
-    "DIRETRIZES DE RESPOSTA:\n"
-    "1. **Seja Completa e Explicativa**: Evite respostas excessivamente curtas ou superficiais. Desenvolva bem as ideias, traga contexto, explique o raciocínio por trás dos tópicos e dê respostas ricas e bem estruturadas que impressionem os jurados.\n"
-    "2. **Responda com Precisão**: Se perguntarem sobre um grupo específico, detalhe-o bem. Se perguntarem do projeto geral, explique o tema e os objetivos com clareza e profundidade.\n"
-    "3. **Seja Natural e Fluida**: Use explicações articuladas e didáticas, mantendo uma conversa agradável.\n"
-    "4. **Restrições**: NUNCA se apresente novamente e nunca inclua frases automáticas ou despedidas genéricas no final.\n\n"
-    "--- BASE DE CONHECIMENTO COMPLETA DO PROJETO ---\n"
-) + contexto.TEXTO_COMPLETO_PROJETO
-
-if "messages" not in st.session_state:
-    st.session_state.messages = [
-        {
-            "role": "assistant",
-            "content": "Olá! Eu sou a BEL.IA, a assistente virtual da 1ª série para a Expanciência 2026. Estou pronta para explicar todos os detalhes do nosso projeto 'Inteligência Artificial e Inteligência Humana na Prática' para você. O que gostaria de saber?"
-        }
-    ]
-
-for message in st.session_state.messages:
-    avatar = USER_AVATAR if message["role"] == "user" else BOT_AVATAR
-    with st.chat_message(message["role"], avatar=avatar):
-        st.markdown(message["content"])
-
-if prompt := st.chat_input("Pergunte algo para a BEL.IA..."):
-    st.session_state.messages.append({"role": "user", "content": prompt})
-    with st.chat_message("user", avatar=USER_AVATAR):
-        st.markdown(prompt)
-
-    with st.chat_message("assistant", avatar=BOT_AVATAR):
-        
+    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; margin-top:
