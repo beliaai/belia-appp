@@ -18,9 +18,12 @@ if not chaves_api:
     st.error("Nenhuma chave de API encontrada nos Secrets do Streamlit!")
     st.stop()
 
-# Memoriza qual chave está funcionando no momento para não perder tempo testando as esgotadas
-if "indice_chave_atual" not in st.session_state:
-    st.session_state.indice_chave_atual = 0
+# Memória global compartilhada entre TODOS os celulares/dispositivos conectados
+@st.cache_resource
+def obter_memoria_global():
+    return {"chaves_esgotadas": set()}
+
+memoria_global = obter_memoria_global()
 
 st.markdown(
     """
@@ -101,40 +104,4 @@ if prompt := st.chat_input("Pergunte algo para a BEL.IA..."):
         st.markdown(prompt)
 
     with st.chat_message("assistant", avatar=BOT_AVATAR):
-        with st.spinner("Pensando..."):
-            bot_response = None
-            total_chaves = len(chaves_api)
-            
-            # Começa direto pela última chave que estava funcionando
-            for tentativa in range(total_chaves):
-                idx = (st.session_state.indice_chave_atual + tentativa) % total_chaves
-                chave = chaves_api[idx]
-                
-                try:
-                    genai.configure(api_key=chave)
-                    model = genai.GenerativeModel(
-                        model_name="gemini-3.6-flash",
-                        system_instruction=instrucao_sistema
-                    )
-                    
-                    chat = model.start_chat(history=[
-                        {"role": "user" if m["role"] == "user" else "model", "parts": [m["content"]]}
-                        for m in st.session_state.messages[:-1]
-                    ])
-                    response = chat.send_message(prompt)
-                    
-                    if response and response.text:
-                        bot_response = response.text
-                        # Salva essa chave como a ativa para as próximas perguntas serem instantâneas
-                        st.session_state.indice_chave_atual = idx
-                        break  
-                except Exception as e:
-                    if tentativa == total_chaves - 1:
-                        bot_response = f"⚠️ Todas as chaves atingiram o limite ou ocorreu um erro: {str(e)}"
-                    continue
-
-            if not bot_response:
-                bot_response = "Não foi possível obter resposta no momento. Tente novamente."
-
-            st.markdown(bot_response)
-            st.session_state.messages.append({"role": "assistant", "content": bot_response})
+        
