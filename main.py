@@ -4,9 +4,9 @@ import contexto
 
 st.set_page_config(page_title="BEL.IA - Expanciência 2026", page_icon="🤖", layout="centered")
 
-# Recolhemos todas as chaves disponíveis de forma segura nos Secrets do Streamlit
+# Recolhemos todas as 5 chaves disponíveis de forma segura nos Secrets do Streamlit
 chaves_api = []
-for i in ["GEMINI_API_KEY", "GEMINI_API_KEY_2", "GEMINI_API_KEY_3"]:
+for i in ["GEMINI_API_KEY", "GEMINI_API_KEY_2", "GEMINI_API_KEY_3", "GEMINI_API_KEY_4", "GEMINI_API_KEY_5"]:
     try:
         k = st.secrets.get(i)
         if k:
@@ -100,7 +100,7 @@ if prompt := st.chat_input("Pergunte algo para a BEL.IA..."):
         with st.spinner("Pensando..."):
             bot_response = None
             
-            # Tenta enviar a mensagem usando o modelo 3.6, alternando entre as chaves se houver erro (como 503 ou cota esgotada)
+            # Percorre cada uma das 5 chaves disponíveis nos Secrets testando a conexão
             for idx, chave in enumerate(chaves_api):
                 try:
                     genai.configure(api_key=chave)
@@ -117,10 +117,11 @@ if prompt := st.chat_input("Pergunte algo para a BEL.IA..."):
                     
                     if response and response.text:
                         bot_response = response.text
-                        break 
+                        break  # Se deu certo, sai do loop e usa a resposta
                 except Exception as e:
+                    # Se der erro de cota ou conexão, tenta a próxima chave da lista
                     if idx == len(chaves_api) - 1:
-                        bot_response = f"Erro de conexão com os servidores (503/Indisponível): {str(e)}"
+                        bot_response = f"⚠️ Todas as chaves atingiram o limite ou ocorreu um erro: {str(e)}"
                     continue
 
             if not bot_response:
@@ -128,4 +129,3 @@ if prompt := st.chat_input("Pergunte algo para a BEL.IA..."):
 
             st.markdown(bot_response)
             st.session_state.messages.append({"role": "assistant", "content": bot_response})
-
