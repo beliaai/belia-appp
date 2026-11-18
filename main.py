@@ -4,6 +4,20 @@ import contexto
 
 st.set_page_config(page_title="BEL.IA - Expanciência 2026", page_icon="🤖", layout="centered")
 
+# Recolhemos todas as chaves disponíveis de forma segura nos Secrets do Streamlit
+chaves_api = []
+for i in ["GEMINI_API_KEY", "GEMINI_API_KEY_2", "GEMINI_API_KEY_3"]:
+    try:
+        k = st.secrets.get(i)
+        if k:
+            chaves_api.append(k.strip())
+    except Exception:
+        pass
+
+if not chaves_api:
+    st.error("Nenhuma chave de API encontrada nos Secrets do Streamlit!")
+    st.stop()
+
 st.markdown(
     """
     <style>
@@ -53,20 +67,6 @@ st.markdown(
 USER_AVATAR = "user.png"  
 BOT_AVATAR = "bot.png"    
 
-# Recolhemos todas as chaves disponíveis de forma segura nos Secrets do Streamlit
-chaves_api = []
-for i in ["GEMINI_API_KEY", "GEMINI_API_KEY_2", "GEMINI_API_KEY_3"]:
-    try:
-        k = st.secrets.get(i)
-        if k:
-            chaves_api.append(k.strip())
-    except Exception:
-        pass
-
-if not chaves_api:
-    st.error("Nenhuma chave de API encontrada nos Secrets do Streamlit!")
-    st.stop()
-
 instrucao_sistema = (
     "Você é a BEL.IA, a assistente virtual inteligente desenvolvida pelos alunos da 1ª série do Colégio Expansivo para a feira Expanciência 2026. "
     "Sua missão é conversar com o público e os jurados explicando o projeto 'Inteligência Artificial e Inteligência Humana na Prática'.\n\n"
@@ -100,7 +100,7 @@ if prompt := st.chat_input("Pergunte algo para a BEL.IA..."):
         with st.spinner("Pensando..."):
             bot_response = None
             
-            # Tenta enviar a mensagem usando o modelo 3.6, alternando entre as chaves se houver erro (como 503)
+            # Tenta enviar a mensagem usando o modelo 3.6, alternando entre as chaves se houver erro (como 503 ou cota esgotada)
             for idx, chave in enumerate(chaves_api):
                 try:
                     genai.configure(api_key=chave)
@@ -128,3 +128,4 @@ if prompt := st.chat_input("Pergunte algo para a BEL.IA..."):
 
             st.markdown(bot_response)
             st.session_state.messages.append({"role": "assistant", "content": bot_response})
+
