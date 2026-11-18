@@ -18,6 +18,10 @@ if not chaves_api:
     st.error("Nenhuma chave de API encontrada nos Secrets do Streamlit!")
     st.stop()
 
+# Memoriza qual chave está funcionando no momento para não perder tempo testando as esgotadas
+if "indice_chave_atual" not in st.session_state:
+    st.session_state.indice_chave_atual = 0
+
 st.markdown(
     """
     <style>
@@ -99,9 +103,13 @@ if prompt := st.chat_input("Pergunte algo para a BEL.IA..."):
     with st.chat_message("assistant", avatar=BOT_AVATAR):
         with st.spinner("Pensando..."):
             bot_response = None
+            total_chaves = len(chaves_api)
             
-            # Percorre cada uma das 5 chaves disponíveis nos Secrets testando a conexão
-            for idx, chave in enumerate(chaves_api):
+            # Começa direto pela última chave que estava funcionando
+            for tentativa in range(total_chaves):
+                idx = (st.session_state.indice_chave_atual + tentativa) % total_chaves
+                chave = chaves_api[idx]
+                
                 try:
                     genai.configure(api_key=chave)
                     model = genai.GenerativeModel(
@@ -117,10 +125,11 @@ if prompt := st.chat_input("Pergunte algo para a BEL.IA..."):
                     
                     if response and response.text:
                         bot_response = response.text
-                        break  # Se deu certo, sai do loop e usa a resposta
+                        # Salva essa chave como a ativa para as próximas perguntas serem instantâneas
+                        st.session_state.indice_chave_atual = idx
+                        break  
                 except Exception as e:
-                    # Se der erro de cota ou conexão, tenta a próxima chave da lista
-                    if idx == len(chaves_api) - 1:
+                    if tentativa == total_chaves - 1:
                         bot_response = f"⚠️ Todas as chaves atingiram o limite ou ocorreu um erro: {str(e)}"
                     continue
 
