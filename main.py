@@ -4,27 +4,6 @@ import contexto
 
 st.set_page_config(page_title="BEL.IA - Expanciência 2026", page_icon="🤖", layout="centered")
 
-# Recolhemos todas as 5 chaves disponíveis de forma segura nos Secrets do Streamlit
-chaves_api = []
-for i in ["GEMINI_API_KEY", "GEMINI_API_KEY_2", "GEMINI_API_KEY_3", "GEMINI_API_KEY_4", "GEMINI_API_KEY_5"]:
-    try:
-        k = st.secrets.get(i)
-        if k:
-            chaves_api.append(k.strip())
-    except Exception:
-        pass
-
-if not chaves_api:
-    st.error("Nenhuma chave de API encontrada nos Secrets do Streamlit!")
-    st.stop()
-
-# Memória global compartilhada entre TODOS os celulares/dispositivos conectados
-@st.cache_resource
-def obter_memoria_global():
-    return {"chaves_esgotadas": set()}
-
-memoria_global = obter_memoria_global()
-
 st.markdown(
     """
     <style>
@@ -74,6 +53,26 @@ st.markdown(
 USER_AVATAR = "user.png"  
 BOT_AVATAR = "bot.png"    
 
+# Inicializa as chaves e o controle de quais estão esgotadas na sessão do Streamlit
+if "chaves_api" not in st.session_state:
+    chaves_carregadas = []
+    for i in ["GEMINI_API_KEY", "GEMINI_API_KEY_2", "GEMINI_API_KEY_3"]:
+        try:
+            k = st.secrets.get(i)
+            if k:
+                chaves_carregadas.append(k.strip())
+        except Exception:
+            pass
+    st.session_state.chaves_api = chaves_carregadas
+
+if not st.session_state.chaves_api:
+    st.error("Nenhuma chave de API encontrada nos Secrets do Streamlit!")
+    st.stop()
+
+# Controle de chaves inválidas ou esgotadas para descartar temporariamente
+if "chaves_esgotadas" not in st.session_state:
+    st.session_state.chaves_esgotadas = set()
+
 instrucao_sistema = (
     "Você é a BEL.IA, a assistente virtual inteligente desenvolvida pelos alunos da 1ª série do Colégio Expansivo para a feira Expanciência 2026. "
     "Sua missão é conversar com o público e os jurados explicando o projeto 'Inteligência Artificial e Inteligência Humana na Prática'.\n\n"
@@ -107,21 +106,20 @@ if prompt := st.chat_input("Pergunte algo para a BEL.IA..."):
         with st.spinner("Pensando..."):
             bot_response = None
             
-            chaves_disponiveis = [k for k in chaves_api if k not in memoria_global["chaves_esgotadas"]]
+            # Organiza a ordem: testa primeiro as chaves que NÃO estão na lista de esgotadas
+            chaves_disponiveis = [k for k in st.session_state.chaves_api if k not in st.session_state.chaves_esgotadas]
+            
+            # Se todas esgotaram, limpa a lista para tentar dar uma nova chance a elas
             if not chaves_disponiveis:
-                memoria_global["chaves_esgotadas"].clear()
-                chaves_disponiveis = chaves_api
+                st.session_state.chaves_esgotadas.clear()
+                chaves_disponiveis = list(st.session_state.chaves_api)
 
-            if "ultima_chave_boa" in st.session_state and st.session_state.ultima_chave_boa in chaves_disponiveis:
-                chaves_ordenadas = [st.session_state.ultima_chave_boa] + [k for k in chaves_disponiveis if k != st.session_state.ultima_chave_boa]
-            else:
-                chaves_ordenadas = chaves_disponiveis
-
-            for chave in chaves_ordenadas:
+            # Tenta enviar a mensagem iterando apenas pelas chaves ativas/válidas
+            for chave in chaves_disponiveis:
                 try:
                     genai.configure(api_key=chave)
                     model = genai.GenerativeModel(
-                        model_name="gemini-3.6-flash",
+                        model_name="gemini-2.5-flash",
                         system_instruction=instrucao_sistema
                     )
                     
@@ -133,16 +131,16 @@ if prompt := st.chat_input("Pergunte algo para a BEL.IA..."):
                     
                     if response and response.text:
                         bot_response = response.text
-                        st.session_state.ultima_chave_boa = chave
-                        break  
+                        break 
                 except Exception as e:
                     erro_str = str(e).lower()
-                    if "429" in erro_str or "quota" in erro_str or "exceeded" in erro_str:
-                        memoria_global["chaves_esgotadas"].add(chave)
+                    # Se detectar erro de cota ou limite atingido (429 / resource exhausted), descarta essa chave temporariamente
+                    if "429" in erro_str or "quota" in erro_str or "resource_exhausted" in erro_str or "limit" in erro_str:
+                        st.session_state.chaves_esgotadas.add(chave)
                     continue
 
             if not bot_response:
-                bot_response = "⚠️ Todas as chaves atingiram o limite diário no momento. Tente novamente mais tarde."
+                bot_response = "⚠️ Todas as chaves atingiram o limite de requisições no momento. Por favor, aguarde um minutinho."
 
             st.markdown(bot_response)
             st.session_state.messages.append({"role": "assistant", "content": bot_response})
