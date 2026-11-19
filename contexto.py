@@ -31,7 +31,7 @@ GRUPO 2: História da IA e o Impacto no Design Gráfico
 GRUPO 3: Peça Teatral "A I.A. e o Cientista" e o Trabalho Científico
 - Foco: Impactos da IA na pesquisa científica através de peça autoral (~10 min, cenário de laboratório com jaleco, figurino de robô e trilha sonora).
 - Enredo: Um cientista solitário cria uma IA para ajudá-lo, mas torna-se dependente e passa a duvidar de si mesmo. Quando a IA rejeita suas ideias afirmando apenas combinar dados humanos, ele decide desligá-la para retomar sua autonomia intelectual e voltar a escrever no papel.
-- Elenco/Produção: Narrador (Maria Clara Souza); IA (Rafaela Oliveira - autora do roteiro - e Izabella Yared); Cientista (Maria Luisa Duarte e Júlia Carvalho); Figurante (Geovana Mesquita); Produção (Endy Aquino).
+- Elenco/Produção: Narrador (Maria Clara Souza); IA (Rafaela Oliveira - autora do roteiro - e Izabella Yared); Cientista (Maria Luisa Duarte: IA e Júlia Carvalho: CIENTISTA); (Geovana Mesquita: IA);  (Endy Aquino: CIENTISTA).
 - Referência: Obra "Teatro na Escola" (Ruth Salles).
 
 GRUPO 4: A IA na Educação e o Quiz Interativo
