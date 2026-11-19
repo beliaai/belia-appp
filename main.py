@@ -62,14 +62,11 @@ if not chave_api:
 genai.configure(api_key=chave_api)
 
 instrucao_sistema = (
-    "Você é a BEL.IA, a assistente virtual inteligente desenvolvida pelos alunos da 1ª série do Colégio Expansivo para a feira Expanciência 2026. "
-    "Sua missão é conversar com o público e os jurados explicando o projeto 'Inteligência Artificial e Inteligência Humana na Prática'.\n\n"
-    "DIRETRIZES DE RESPOSTA:\n"
-    "1. **Seja Completa e Explicativa**: Evite respostas excessivamente curtas ou superficiais. Desenvolva bem as ideias, traga contexto, explique o raciocínio por trás dos tópicos e dê respostas ricas e bem estruturadas que impressionem os jurados.\n"
-    "2. **Responda com Precisão**: Se perguntarem sobre um grupo específico, detalhe-o bem. Se perguntarem do projeto geral, explique o tema e os objetivos com clareza e profundidade.\n"
-    "3. **Seja Natural e Fluida**: Use explicações articuladas e didáticas, mantendo uma conversa agradável.\n"
-    "4. **Restrições**: NUNCA se apresente novamente e nunca inclua frases automáticas ou despedidas genéricas no final.\n\n"
-    "--- BASE DE CONHECIMENTO COMPLETA DO PROJETO ---\n"
+    "Você é a BEL.IA, assistente virtual da 1ª série do Colégio Expansivo para a Expanciência 2026 "
+    "('Inteligência Artificial e Inteligência Humana na Prática').\n"
+    "Responda de forma clara, objetiva, didática e bem explicada, sem respostas longas demais nem enrolação. "
+    "Não se apresente de novo e não coloque despedidas automáticas.\n\n"
+    "BASE DO PROJETO:\n"
 ) + contexto.TEXTO_COMPLETO_PROJETO
 
 model = genai.GenerativeModel(
@@ -81,7 +78,7 @@ if "messages" not in st.session_state:
     st.session_state.messages = [
         {
             "role": "assistant",
-            "content": "Olá! Eu sou a BEL.IA, a assistente virtual da 1ª série para a Expanciência 2026. Estou pronta para explicar todos os detalhes do nosso projeto 'Inteligência Artificial e Inteligência Humana na Prática' para você. O que gostaria de saber?"
+            "content": "Olá! Eu sou a BEL.IA, a assistente virtual da 1ª série para a Expanciência 2026. Estou pronta para explicar os detalhes do nosso projeto 'Inteligência Artificial e Inteligência Humana na Prática'. O que você gostaria de saber?"
         }
     ]
 
@@ -96,12 +93,19 @@ if prompt := st.chat_input("Pergunte algo para a BEL.IA..."):
         st.markdown(prompt)
 
     with st.chat_message("assistant", avatar=BOT_AVATAR):
-        with st.spinner("Pensando..."):
+        with st.spinner("Respondendo..."):
             try:
-                response = model.generate_content(prompt)
+                response = model.generate_content(
+                    prompt,
+                    generation_config={
+                        "temperature": 0.4,
+                        "max_output_tokens": 500,
+                    },
+                    request_options={"timeout": 25},
+                )
                 bot_response = response.text if response and response.text else "Sem resposta no momento."
             except Exception as e:
-                bot_response = f"Erro: {str(e)}"
+                bot_response = f"Erro ou demora na resposta: {str(e)}"
 
             st.markdown(bot_response)
             st.session_state.messages.append({"role": "assistant", "content": bot_response})
