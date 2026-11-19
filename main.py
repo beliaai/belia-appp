@@ -135,8 +135,8 @@ def gerar_resposta_com_proprias_palavras(pergunta: str, bloco_base: str) -> str:
             "Você é a BEL.IA, assistente virtual da 1ª série do Colégio Expansivo na Expanciência 2026. "
             "Responda à pergunta usando as SUAS PRÓPRIAS PALAVRAS, de forma fluida, natural, envolvente e bem "
             "desenvolvida, discorrendo sobre o assunto com base EXCLUSIVAMENTE nas informações do bloco fornecido. "
-            "Não invente fatos que não estejam no bloco, não se apresente novamente e mantenha nomes, datas, "
-            "números e referências fiéis ao bloco."
+            "Não copie frases literalmente iguais ao bloco quando puder reescrever com naturalidade, não invente "
+            "fatos que não estejam no bloco e mantenha nomes, datas, números e referências fiéis ao bloco."
         )
         model = genai.GenerativeModel(
             model_name="gemini-3.8-flash",
@@ -145,15 +145,15 @@ def gerar_resposta_com_proprias_palavras(pergunta: str, bloco_base: str) -> str:
         prompt_final = (
             f"INFORMAÇÕES DO PROJETO:\n{bloco_base}\n\n"
             f"PERGUNTA: {pergunta}\n\n"
-            "Explique esse assunto com as suas próprias palavras de maneira clara e bem desenvolvida:"
+            "Explique esse assunto com as suas próprias palavras de maneira clara, natural e bem desenvolvida:"
         )
         response = model.generate_content(
             prompt_final,
             generation_config={
-                "temperature": 0.65,
-                "max_output_tokens": 500,
+                "temperature": 0.75,
+                "max_output_tokens": 550,
             },
-            request_options={"timeout": 4},
+            request_options={"timeout": 10},
         )
         if response and response.text and response.text.strip():
             return response.text.strip()
@@ -183,6 +183,7 @@ if prompt := st.chat_input("Pergunte algo para a BEL.IA..."):
 
     with st.chat_message("assistant", avatar=BOT_AVATAR):
         bloco = obter_bloco_base(prompt)
-        bot_response = gerar_resposta_com_proprias_palavras(prompt, bloco)
+        with st.spinner("Elaborando resposta..."):
+            bot_response = gerar_resposta_com_proprias_palavras(prompt, bloco)
         st.markdown(bot_response)
         st.session_state.messages.append({"role": "assistant", "content": bot_response})
