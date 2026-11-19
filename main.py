@@ -132,30 +132,29 @@ if prompt := st.chat_input("Pergunte algo para a BEL.IA..."):
         st.markdown(prompt)
 
     with st.chat_message("assistant", avatar=BOT_AVATAR):
-        with st.spinner("Respondendo..."):
-            bot_response = None
-            if chave_api:
-                try:
-                    genai.configure(api_key=chave_api)
-                    model = genai.GenerativeModel(
-                        model_name="gemini-3.8-flash",
-                        system_instruction=instrucao_sistema
-                    )
-                    response = model.generate_content(
-                        prompt,
-                        generation_config={
-                            "temperature": 0.4,
-                            "max_output_tokens": 400,
-                        },
-                        request_options={"timeout": 12},
-                    )
-                    if response and response.text:
-                        bot_response = response.text
-                except Exception:
-                    bot_response = None
+        bot_response = None
+        if chave_api:
+            try:
+                genai.configure(api_key=chave_api)
+                model = genai.GenerativeModel(
+                    model_name="gemini-3.8-flash",
+                    system_instruction=instrucao_sistema
+                )
+                response = model.generate_content(
+                    prompt,
+                    generation_config={
+                        "temperature": 0.4,
+                        "max_output_tokens": 350,
+                    },
+                    request_options={"timeout": 3},
+                )
+                if response and response.text:
+                    bot_response = response.text
+            except Exception:
+                bot_response = None
 
-            if not bot_response:
-                bot_response = responder_por_palavras_chave(prompt)
+        if not bot_response:
+            bot_response = responder_por_palavras_chave(prompt)
 
-            st.markdown(bot_response)
-            st.session_state.messages.append({"role": "assistant", "content": bot_response})
+        st.markdown(bot_response)
+        st.session_state.messages.append({"role": "assistant", "content": bot_response})
