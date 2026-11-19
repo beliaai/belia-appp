@@ -171,8 +171,8 @@ def responder_por_palavra_chave(pergunta: str):
 def responder_pergunta_de_fora(pergunta: str) -> str:
     if not chave_api:
         return (
-            "Essa pergunta é de fora do nosso projeto da Expanciência e a chave da API não está configurada no momento. "
-            "Sobre o projeto da 1ª série, posso te explicar os 4 grupos, a peça teatral, o quiz, a culminância ou a BEL.IA!"
+            "Essa pergunta é de fora do nosso projeto da Expanciência e a chave GEMINI_API_KEY "
+            "não foi encontrada nos Secrets do Streamlit."
         )
 
     try:
@@ -191,17 +191,13 @@ def responder_pergunta_de_fora(pergunta: str) -> str:
                 "temperature": 0.6,
                 "max_output_tokens": 350,
             },
-            request_options={"timeout": 5},
+            request_options={"timeout": 12},
         )
         if response and response.text and response.text.strip():
             return response.text.strip()
-    except Exception:
-        pass
-
-    return (
-        "Tentei consultar uma resposta externa agora, mas a conexão demorou ou oscilou no momento. "
-        "Se quiser, pode perguntar novamente ou tirar dúvidas sobre o nosso projeto da Expanciência 2026!"
-    )
+        return "A API respondeu vazia no momento. Tente perguntar novamente."
+    except Exception as e:
+        return f"Não consegui responder agora por este motivo: {type(e).__name__}: {e}"
 
 
 if "messages" not in st.session_state:
