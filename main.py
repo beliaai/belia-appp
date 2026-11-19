@@ -55,23 +55,63 @@ BOT_AVATAR = "bot.png"
 
 chave_api = st.secrets.get("GEMINI_API_KEY", "").strip()
 
-if not chave_api:
-    st.error("Configure a chave GEMINI_API_KEY nos Secrets do Streamlit!")
-    st.stop()
-
-genai.configure(api_key=chave_api)
-
-# Teste rápido com instrução enxuta primeiro
 instrucao_sistema = (
     "Você é a BEL.IA, assistente virtual da 1ª série do Colégio Expansivo para a Expanciência 2026 "
     "('Inteligência Artificial e Inteligência Humana na Prática'). "
-    "Responda de forma rápida, clara e direta, sem se apresentar de novo."
-)
+    "Responda de forma rápida, clara, objetiva e bem explicada, sem se apresentar de novo.\n\n"
+    "BASE DO PROJETO:\n"
+) + contexto.TEXTO_COMPLETO_PROJETO
 
-model = genai.GenerativeModel(
-    model_name="gemini-3.8-flash",
-    system_instruction=instrucao_sistema
-)
+
+def responder_por_palavras_chave(pergunta: str) -> str:
+    p = pergunta.lower()
+
+    if any(k in p for k in ["tempo", "demorou", "prazo", "meses", "cronograma", "quando começou", "etapas"]):
+        return (
+            "O subprojeto foi desenvolvido em duas etapas: a primeira de pesquisa e trabalho escrito entre agosto e setembro, "
+            "e a segunda de preparação prática e ensaios entre outubro e novembro. Já a criação da BEL.IA envolveu 4 meses "
+            "de estudo e pesquisa."
+        )
+
+    if any(k in p for k in ["grupo 1", "grupo um", "psicologia", "cibele", "transformer", "nome bel", "bel.ia"]):
+        return (
+            "O Grupo 1 aborda IA versus inteligência humana na Psicologia, com participação da psicóloga Cibele Valente e "
+            "referência no artigo 'Attention Is All You Need'. Ele mostra que a IA reconhece padrões, mas não tem consciência, "
+            "emoção, escuta empática ou vínculo humano, além de apresentar a BEL.IA (cujo nome junta 'Bel' de Belquis com 'IA')."
+        )
+
+    if any(k in p for k in ["grupo 2", "grupo dois", "design", "gráfico", "história", "oeslem", "ufg"]):
+        return (
+            "O Grupo 2 trata da história da IA até a IA generativa e seus impactos no Design Gráfico — como criação, edição, "
+            "prototipagem, autoria e originalidade —, com convidado Oeslem Maik e base no e-book da UFG (2025)."
+        )
+
+    if any(k in p for k in ["grupo 3", "grupo três", "grupo tres", "peça", "teatro", "cientista", "laboratório", "ruth salles"]):
+        return (
+            "O Grupo 3 apresenta a peça teatral 'A I.A. e o Cientista' (~10 min, com cenário de laboratório), sobre um cientista "
+            "que cria uma IA, fica dependente dela e, ao ver suas ideias rejeitadas, decide desligá-la para retomar sua própria "
+            "autonomia intelectual, com base na obra de Ruth Salles."
+        )
+
+    if any(k in p for k in ["grupo 4", "grupo quatro", "educação", "quiz", "professores", "talis", "56%"]):
+        return (
+            "O Grupo 4 traz um quiz interativo diferenciando produções humanas e de IA na educação e cita a pesquisa TALIS 2024 "
+            "(OCDE / Agência Brasil), que aponta que 56% dos professores brasileiros usam IA no apoio pedagógico, destacando o "
+            "papel insubstituível do professor na mediação e na sensibilidade humana."
+        )
+
+    if any(k in p for k in ["culminância", "sábado", "dia 21", "horário", "hora", "local", "estande", "onde"]):
+        return (
+            "A culminância acontece no dia 21 de novembro de 2026, das 18h às 21h (com montagem do estande das 8h às 12h), "
+            "no Colégio Expansivo, em estande coletivo próximo ao refeitório e parquinho da Educação Infantil."
+        )
+
+    return (
+        "O projeto da 1ª série do Colégio Expansivo na Expanciência 2026 tem o tema 'Inteligência Artificial e Inteligência "
+        "Humana na Prática: Origem e Desenvolvimento da I.A nas Profissões no Brasil', com orientação de Deuziana Almeida e "
+        "Malrício França, dividido em quatro grupos (Psicologia, Design Gráfico, Peça Teatral e Educação/Quiz)."
+    )
+
 
 if "messages" not in st.session_state:
     st.session_state.messages = [
@@ -93,17 +133,29 @@ if prompt := st.chat_input("Pergunte algo para a BEL.IA..."):
 
     with st.chat_message("assistant", avatar=BOT_AVATAR):
         with st.spinner("Respondendo..."):
-            try:
-                response = model.generate_content(
-                    prompt,
-                    generation_config={
-                        "temperature": 0.4,
-                        "max_output_tokens": 350,
-                    },
-                )
-                bot_response = response.text if response and response.text else "Sem resposta no momento."
-            except Exception as e:
-                bot_response = f"Erro: {str(e)}"
+            bot_response = None
+            if chave_api:
+                try:
+                    genai.configure(api_key=chave_api)
+                    model = genai.GenerativeModel(
+                        model_name="gemini-3.8-flash",
+                        system_instruction=instrucao_sistema
+                    )
+                    response = model.generate_content(
+                        prompt,
+                        generation_config={
+                            "temperature": 0.4,
+                            "max_output_tokens": 400,
+                        },
+                        request_options={"timeout": 12},
+                    )
+                    if response and response.text:
+                        bot_response = response.text
+                except Exception:
+                    bot_response = None
+
+            if not bot_response:
+                bot_response = responder_por_palavras_chave(prompt)
 
             st.markdown(bot_response)
             st.session_state.messages.append({"role": "assistant", "content": bot_response})
