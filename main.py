@@ -61,13 +61,12 @@ if not chave_api:
 
 genai.configure(api_key=chave_api)
 
+# Teste rápido com instrução enxuta primeiro
 instrucao_sistema = (
     "Você é a BEL.IA, assistente virtual da 1ª série do Colégio Expansivo para a Expanciência 2026 "
-    "('Inteligência Artificial e Inteligência Humana na Prática').\n"
-    "Responda de forma clara, objetiva, didática e bem explicada, sem respostas longas demais nem enrolação. "
-    "Não se apresente de novo e não coloque despedidas automáticas.\n\n"
-    "BASE DO PROJETO:\n"
-) + contexto.TEXTO_COMPLETO_PROJETO
+    "('Inteligência Artificial e Inteligência Humana na Prática'). "
+    "Responda de forma rápida, clara e direta, sem se apresentar de novo."
+)
 
 model = genai.GenerativeModel(
     model_name="gemini-3.8-flash",
@@ -99,13 +98,12 @@ if prompt := st.chat_input("Pergunte algo para a BEL.IA..."):
                     prompt,
                     generation_config={
                         "temperature": 0.4,
-                        "max_output_tokens": 500,
+                        "max_output_tokens": 350,
                     },
-                    request_options={"timeout": 25},
                 )
                 bot_response = response.text if response and response.text else "Sem resposta no momento."
             except Exception as e:
-                bot_response = f"Erro ou demora na resposta: {str(e)}"
+                bot_response = f"Erro: {str(e)}"
 
             st.markdown(bot_response)
             st.session_state.messages.append({"role": "assistant", "content": bot_response})
