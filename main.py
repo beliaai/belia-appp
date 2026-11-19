@@ -1,5 +1,4 @@
 import streamlit as st
-import google.generativeai as genai
 import contexto
 
 st.set_page_config(page_title="BEL.IA - Expanciência 2026", page_icon="🤖", layout="centered")
@@ -53,63 +52,74 @@ st.markdown(
 USER_AVATAR = "user.png"
 BOT_AVATAR = "bot.png"
 
-chave_api = st.secrets.get("GEMINI_API_KEY", "").strip()
-
-instrucao_sistema = (
-    "Você é a BEL.IA, assistente virtual da 1ª série do Colégio Expansivo para a Expanciência 2026 "
-    "('Inteligência Artificial e Inteligência Humana na Prática'). "
-    "Responda de forma rápida, clara, objetiva e bem explicada, sem se apresentar de novo.\n\n"
-    "BASE DO PROJETO:\n"
-) + contexto.TEXTO_COMPLETO_PROJETO
-
 
 def responder_por_palavras_chave(pergunta: str) -> str:
     p = pergunta.lower()
 
-    if any(k in p for k in ["tempo", "demorou", "prazo", "meses", "cronograma", "quando começou", "etapas"]):
+    if any(k in p for k in ["tempo", "demorou", "prazo", "meses", "cronograma", "quando começou", "etapas", "quando"]):
         return (
-            "O subprojeto foi desenvolvido em duas etapas: a primeira de pesquisa e trabalho escrito entre agosto e setembro, "
-            "e a segunda de preparação prática e ensaios entre outubro e novembro. Já a criação da BEL.IA envolveu 4 meses "
-            "de estudo e pesquisa."
+            "O desenvolvimento do subprojeto aconteceu em duas etapas principais: a primeira foi de pesquisa, levantamento "
+            "bibliográfico e elaboração do trabalho escrito entre agosto e setembro (com base na obra 'Introdução à Inteligência "
+            "Artificial' da UFG), e a segunda foi de preparação prática, reuniões de alinhamento, ensaios da peça e montagem do "
+            "estande entre outubro e novembro. Já a criação e o estudo da BEL.IA envolveram 4 meses de pesquisa e dedicação."
         )
 
-    if any(k in p for k in ["grupo 1", "grupo um", "psicologia", "cibele", "transformer", "nome bel", "bel.ia"]):
+    if any(k in p for k in ["grupo 1", "grupo um", "psicologia", "cibele", "transformer", "nome bel", "bel.ia", "belquis"]):
         return (
-            "O Grupo 1 aborda IA versus inteligência humana na Psicologia, com participação da psicóloga Cibele Valente e "
-            "referência no artigo 'Attention Is All You Need'. Ele mostra que a IA reconhece padrões, mas não tem consciência, "
-            "emoção, escuta empática ou vínculo humano, além de apresentar a BEL.IA (cujo nome junta 'Bel' de Belquis com 'IA')."
+            "O **Grupo 1** investiga *Inteligência Artificial vs. Inteligência Humana e a Psicologia*, utilizando a BEL.IA em "
+            "uma demonstração prática interativa. A discussão mostra que a IA processa dados e reconhece padrões de linguagem, "
+            "mas não possui consciência, sentimentos, escuta empática, vínculos afetivos ou responsabilidade ética e subjetiva "
+            "como um psicólogo. Conta com a convidada especial **Psicóloga Cibele Valente** e referência no artigo *Attention Is "
+            "All You Need* (Vaswani et al., 2017, arquitetura Transformer). O nome **BEL.IA** vem da junção de 'Bel' (de Belquis) "
+            "com 'IA', desenvolvida por Graziella Belquis ao lado de Isadora Gemaque, Carolina Gondim, Erick Santos, Sara Yasmin, "
+            "José Arthur e Levi Campos."
         )
 
-    if any(k in p for k in ["grupo 2", "grupo dois", "design", "gráfico", "história", "oeslem", "ufg"]):
+    if any(k in p for k in ["grupo 2", "grupo dois", "design", "gráfico", "grafico", "história", "historia", "oeslem", "ufg"]):
         return (
-            "O Grupo 2 trata da história da IA até a IA generativa e seus impactos no Design Gráfico — como criação, edição, "
-            "prototipagem, autoria e originalidade —, com convidado Oeslem Maik e base no e-book da UFG (2025)."
+            "O **Grupo 2** aborda a *História da IA e o Impacto no Design Gráfico*, traçando a evolução da IA até a IA generativa "
+            "e analisando como ela muda a criação, a edição de imagens, a prototipagem, a autoria, a criatividade e a originalidade "
+            "no trabalho dos designers. Tem como convidado especial o designer gráfico **Oeslem Maik**, referência no e-book "
+            "*Introdução à Inteligência Artificial* (Cegraf UFG, 2025), e conta com Gabriel Malcher, João Paulo Guimarães, "
+            "Luís Eduardo Amim, Ricardo Batista, Pedro Paulo Souza, Arthur Mesquita e Miguel Santos."
         )
 
-    if any(k in p for k in ["grupo 3", "grupo três", "grupo tres", "peça", "teatro", "cientista", "laboratório", "ruth salles"]):
+    if any(k in p for k in ["grupo 3", "grupo três", "grupo tres", "peça", "teatro", "cientista", "laboratório", "laboratorio", "ruth salles"]):
         return (
-            "O Grupo 3 apresenta a peça teatral 'A I.A. e o Cientista' (~10 min, com cenário de laboratório), sobre um cientista "
-            "que cria uma IA, fica dependente dela e, ao ver suas ideias rejeitadas, decide desligá-la para retomar sua própria "
-            "autonomia intelectual, com base na obra de Ruth Salles."
+            "O **Grupo 3** apresenta a peça teatral autoral *'A I.A. e o Cientista'* (~10 minutos, com cenário de laboratório, "
+            "jaleco, figurino de robô e trilha sonora), inspirada na obra *Teatro na Escola* (Ruth Salles). Na história, um "
+            "cientista cria uma IA para apoiar suas pesquisas, mas acaba ficando dependente e duvidando da própria capacidade. "
+            "Quando a IA rejeita suas ideias e argumenta que apenas combina dados criados por humanos, ele decide desligá-la "
+            "para retomar sua autonomia intelectual e voltar a escrever suas próprias ideias no papel. Participam Maria Clara "
+            "Souza, Rafaela Oliveira (roteiro), Izabella Yared, Maria Luisa Duarte, Júlia Carvalho, Geovana Mesquita e Endy Aquino."
         )
 
-    if any(k in p for k in ["grupo 4", "grupo quatro", "educação", "quiz", "professores", "talis", "56%"]):
+    if any(k in p for k in ["grupo 4", "grupo quatro", "educação", "educacao", "quiz", "professores", "talis", "56%"]):
         return (
-            "O Grupo 4 traz um quiz interativo diferenciando produções humanas e de IA na educação e cita a pesquisa TALIS 2024 "
-            "(OCDE / Agência Brasil), que aponta que 56% dos professores brasileiros usam IA no apoio pedagógico, destacando o "
-            "papel insubstituível do professor na mediação e na sensibilidade humana."
+            "O **Grupo 4** trabalha *A IA na Educação e o Quiz Interativo*, propondo um quiz para diferenciar produções feitas "
+            "por IA e por seres humanos e debater o papel do professor. O grupo apresenta dados da pesquisa **TALIS 2024** "
+            "(OCDE / Agência Brasil), mostrando que **56% dos professores brasileiros** utilizam IA para planejar aulas, buscar "
+            "metodologias e adaptar materiais — reforçando que a IA apoia, mas não substitui a mediação, o senso crítico e a "
+            "sensibilidade humana do docente. Integrantes: Elen Miranda, Samuel Monteiro, Ana Beatriz Vilhena, Lucas Araújo, "
+            "Fernanda Pimentel, Rúbia Mendonça e Pedro Bueno."
         )
 
-    if any(k in p for k in ["culminância", "sábado", "dia 21", "horário", "hora", "local", "estande", "onde"]):
+    if any(k in p for k in ["culminância", "culminancia", "sábado", "sabado", "dia 21", "horário", "horario", "hora", "local", "estande", "onde", "orientadores", "coordenação"]):
         return (
-            "A culminância acontece no dia 21 de novembro de 2026, das 18h às 21h (com montagem do estande das 8h às 12h), "
-            "no Colégio Expansivo, em estande coletivo próximo ao refeitório e parquinho da Educação Infantil."
+            "A culminância da **Expanciência 2026** no Colégio Expansivo (Macapá/AP) acontece no dia **21 de novembro de 2026, "
+            "das 18h às 21h** (com montagem do estande das 8h às 12h), em estande coletivo próximo ao refeitório e parquinho "
+            "da Educação Infantil, com expectativa de mais de 600 visitantes. O projeto é avaliativo para todas as disciplinas "
+            "do 3º bimestre da 1ª série, com orientação de **Deuziana Almeida e Malrício França** e coordenação pedagógica de "
+            "**Jovelina Souto e Andréa Santa Rosa**."
         )
 
     return (
-        "O projeto da 1ª série do Colégio Expansivo na Expanciência 2026 tem o tema 'Inteligência Artificial e Inteligência "
-        "Humana na Prática: Origem e Desenvolvimento da I.A nas Profissões no Brasil', com orientação de Deuziana Almeida e "
-        "Malrício França, dividido em quatro grupos (Psicologia, Design Gráfico, Peça Teatral e Educação/Quiz)."
+        "O subprojeto da **1ª série do Ensino Médio do Colégio Expansivo** (Macapá/AP) para a Expanciência 2026 tem o tema "
+        "*'Inteligência Artificial e Inteligência Humana na Prática: Origem e Desenvolvimento da I.A nas Profissões no Brasil'*, "
+        "orientado por Deuziana Almeida e Malrício França. A pesquisa investiga como a IA transforma o trabalho e as profissões "
+        "sem substituir a consciência, a emoção, a escuta empática e os vínculos humanos, sendo dividida em quatro frentes: "
+        "**Grupo 1** (Psicologia e BEL.IA), **Grupo 2** (História da IA e Design Gráfico), **Grupo 3** (peça teatral *'A I.A. e o "
+        "Cientista'*) e **Grupo 4** (IA na Educação e Quiz Interativo com dados da TALIS 2024)."
     )
 
 
@@ -132,29 +142,6 @@ if prompt := st.chat_input("Pergunte algo para a BEL.IA..."):
         st.markdown(prompt)
 
     with st.chat_message("assistant", avatar=BOT_AVATAR):
-        bot_response = None
-        if chave_api:
-            try:
-                genai.configure(api_key=chave_api)
-                model = genai.GenerativeModel(
-                    model_name="gemini-3.8-flash",
-                    system_instruction=instrucao_sistema
-                )
-                response = model.generate_content(
-                    prompt,
-                    generation_config={
-                        "temperature": 0.4,
-                        "max_output_tokens": 350,
-                    },
-                    request_options={"timeout": 3},
-                )
-                if response and response.text:
-                    bot_response = response.text
-            except Exception:
-                bot_response = None
-
-        if not bot_response:
-            bot_response = responder_por_palavras_chave(prompt)
-
+        bot_response = responder_por_palavras_chave(prompt)
         st.markdown(bot_response)
         st.session_state.messages.append({"role": "assistant", "content": bot_response})
