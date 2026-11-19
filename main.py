@@ -1,4 +1,5 @@
 import streamlit as st
+import google.generativeai as genai
 
 st.set_page_config(page_title="BEL.IA - Expanciência 2026", page_icon="🤖", layout="centered")
 
@@ -50,6 +51,8 @@ st.markdown(
 
 USER_AVATAR = "user.png"
 BOT_AVATAR = "bot.png"
+
+chave_api = st.secrets.get("GEMINI_API_KEY", "").strip()
 
 # Transcrição íntegra e detalhada do projeto oficial do Colégio Expansivo - 2026
 TEXTO_COMPLETO_PROJETO = """
@@ -128,7 +131,7 @@ GRUPO 4: A IA na Educação e o Quiz Interativo
 """
 
 
-def responder_projeto(pergunta: str) -> str:
+def responder_por_palavra_chave(pergunta: str) -> str | None:
     p = pergunta.lower()
 
     # 1. Grupo 1 / Psicologia / BEL.IA
@@ -210,52 +213,4 @@ def responder_projeto(pergunta: str) -> str:
     # 8. Culminância / Data / Horário / Local / Orientadores / Avaliação
     if any(k in p for k in ["culminância", "culminancia", "sábado", "sabado", "dia 21", "horário", "horario", "hora", "local", "estande", "onde", "orientadores", "coordenação", "coordenacao", "avaliação", "avaliacao", "nota", "público", "publico"]):
         return (
-            "### Dados da Culminância — Expanciência 2026\n\n"
-            "- **Instituição:** Colégio Expansivo — Educação Infantil, Ensino Fundamental e Ensino Médio (Macapá/AP).\n"
-            "- **Data:** **21 de novembro de 2026**.\n"
-            "- **Horário da Apresentação:** Das **18h às 21h** (montagem do estande das **8h às 12h**).\n"
-            "- **Local:** Estande coletivo localizado na área próxima ao refeitório (área de lazer da Educação Infantil / parquinho).\n"
-            "- **Público Esperado:** Mais de **600 pessoas** (estudantes, professores, pais, familiares, comunidade escolar e convidados externos).\n"
-            "- **Orientadores:** Professores **Deuziana Almeida** e **Malrício França**.\n"
-            "- **Coordenação Pedagógica:** Professoras **Jovelina Souto** e **Andréa Santa Rosa**.\n"
-            "- **Avaliação:** Atividade obrigatória para obtenção de nota no **3º instrumento avaliativo de todas as disciplinas do 3º bimestre** da 1ª série do Ensino Médio."
-        )
-
-    # 9. Resposta geral completa sobre o projeto
-    return (
-        "### Projeto Expanciência 2026 — 1ª Série do Ensino Médio (Colégio Expansivo)\n\n"
-        "- **Projeto Geral:** *Expan Ciência: Inteligência Artificial: Transformando o Cotidiano e a Sociedade*.\n"
-        "- **Subprojeto:** *Inteligência Artificial e Inteligência Humana na Prática: Origem e Desenvolvimento da I.A nas Profissões no Brasil*.\n"
-        "- **Orientadores:** Deuziana Almeida e Malrício França | **Coordenação Pedagógica:** Jovelina Souto e Andréa Santa Rosa.\n"
-        "- **Síntese:** O projeto analisa como sistemas de IA processam grandes volumes de dados, reconhecem padrões e transformam as profissões no Brasil, destacando a diferença fundamental entre o processamento computacional e a experiência, emoção, consciência, escuta empática e compreensão subjetiva da inteligência humana.\n"
-        "- **Estrutura em 4 Grupos:**\n"
-        "  1. **Grupo 1:** IA vs. Inteligência Humana e a Psicologia (com a **BEL.IA** e a psicóloga **Cibele Valente**).\n"
-        "  2. **Grupo 2:** História da IA e o Impacto no Design Gráfico (com o designer **Oeslem Maik**).\n"
-        "  3. **Grupo 3:** Peça Teatral autoral *'A I.A. e o Cientista'*.\n"
-        "  4. **Grupo 4:** A IA na Educação e o Quiz Interativo (dados da pesquisa **TALIS 2024**).\n"
-        "- **Culminância:** **21 de novembro de 2026**, das **18h às 21h**, no Colégio Expansivo (Macapá/AP)."
-    )
-
-
-if "messages" not in st.session_state:
-    st.session_state.messages = [
-        {
-            "role": "assistant",
-            "content": "Olá! Eu sou a BEL.IA, a assistente virtual da 1ª série para a Expanciência 2026. Estou pronta para explicar os detalhes do nosso projeto 'Inteligência Artificial e Inteligência Humana na Prática'. O que você gostaria de saber?"
-        }
-    ]
-
-for message in st.session_state.messages:
-    avatar = USER_AVATAR if message["role"] == "user" else BOT_AVATAR
-    with st.chat_message(message["role"], avatar=avatar):
-        st.markdown(message["content"])
-
-if prompt := st.chat_input("Pergunte algo para a BEL.IA..."):
-    st.session_state.messages.append({"role": "user", "content": prompt})
-    with st.chat_message("user", avatar=USER_AVATAR):
-        st.markdown(prompt)
-
-    with st.chat_message("assistant", avatar=BOT_AVATAR):
-        bot_response = responder_projeto(prompt)
-        st.markdown(bot_response)
-        st.session_state.messages.append({"role": "assistant", "content": bot_response})
+            "### Dados da
