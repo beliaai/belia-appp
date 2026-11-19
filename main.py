@@ -50,28 +50,16 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-USER_AVATAR = "user.png"  
-BOT_AVATAR = "bot.png"    
+USER_AVATAR = "user.png"
+BOT_AVATAR = "bot.png"
 
-# Inicializa as chaves e o controle de quais estão esgotadas na sessão do Streamlit
-if "chaves_api" not in st.session_state:
-    chaves_carregadas = []
-    for i in ["GEMINI_API_KEY", "GEMINI_API_KEY_2", "GEMINI_API_KEY_3"]:
-        try:
-            k = st.secrets.get(i)
-            if k:
-                chaves_carregadas.append(k.strip())
-        except Exception:
-            pass
-    st.session_state.chaves_api = chaves_carregadas
+chave_api = st.secrets.get("GEMINI_API_KEY", "").strip()
 
-if not st.session_state.chaves_api:
-    st.error("Nenhuma chave de API encontrada nos Secrets do Streamlit!")
+if not chave_api:
+    st.error("Configure a chave GEMINI_API_KEY nos Secrets do Streamlit!")
     st.stop()
 
-# Controle de chaves inválidas ou esgotadas para descartar temporariamente
-if "chaves_esgotadas" not in st.session_state:
-    st.session_state.chaves_esgotadas = set()
+genai.configure(api_key=chave_api)
 
 instrucao_sistema = (
     "Você é a BEL.IA, a assistente virtual inteligente desenvolvida pelos alunos da 1ª série do Colégio Expansivo para a feira Expanciência 2026. "
@@ -83,6 +71,11 @@ instrucao_sistema = (
     "4. **Restrições**: NUNCA se apresente novamente e nunca inclua frases automáticas ou despedidas genéricas no final.\n\n"
     "--- BASE DE CONHECIMENTO COMPLETA DO PROJETO ---\n"
 ) + contexto.TEXTO_COMPLETO_PROJETO
+
+model = genai.GenerativeModel(
+    model_name="gemini-3.6-flash",
+    system_instruction=instrucao_sistema
+)
 
 if "messages" not in st.session_state:
     st.session_state.messages = [
@@ -104,43 +97,11 @@ if prompt := st.chat_input("Pergunte algo para a BEL.IA..."):
 
     with st.chat_message("assistant", avatar=BOT_AVATAR):
         with st.spinner("Pensando..."):
-            bot_response = None
-            
-            # Organiza a ordem: testa primeiro as chaves que NÃO estão na lista de esgotadas
-            chaves_disponiveis = [k for k in st.session_state.chaves_api if k not in st.session_state.chaves_esgotadas]
-            
-            # Se todas esgotaram, limpa a lista para tentar dar uma nova chance a elas
-            if not chaves_disponiveis:
-                st.session_state.chaves_esgotadas.clear()
-                chaves_disponiveis = list(st.session_state.chaves_api)
-
-            # Tenta enviar a mensagem iterando apenas pelas chaves ativas/válidas
-            for chave in chaves_disponiveis:
-                try:
-                    genai.configure(api_key=chave)
-                    model = genai.GenerativeModel(
-                        model_name="gemini-3.6-flash",
-                        system_instruction=instrucao_sistema
-                    )
-                    
-                    chat = model.start_chat(history=[
-                        {"role": "user" if m["role"] == "user" else "model", "parts": [m["content"]]}
-                        for m in st.session_state.messages[:-1]
-                    ])
-                    response = chat.send_message(prompt)
-                    
-                    if response and response.text:
-                        bot_response = response.text
-                        break 
-                except Exception as e:
-                    erro_str = str(e).lower()
-                    # Se detectar erro de cota ou limite atingido (429 / resource exhausted), descarta essa chave temporariamente
-                    if "429" in erro_str or "quota" in erro_str or "resource_exhausted" in erro_str or "limit" in erro_str:
-                        st.session_state.chaves_esgotadas.add(chave)
-                    continue
-
-            if not bot_response:
-                bot_response = "⚠️ Todas as chaves atingiram o limite de requisições no momento. Por favor, aguarde um minutinho."
+            try:
+                response = model.generate_content(prompt)
+                bot_response = response.text if response and response.text else "Sem resposta no momento."
+            except Exception as e:
+                bot_response = f"Erro: {str(e)}"
 
             st.markdown(bot_response)
             st.session_state.messages.append({"role": "assistant", "content": bot_response})
