@@ -119,7 +119,7 @@ if prompt := st.chat_input("Pergunte algo para a BEL.IA..."):
                 try:
                     genai.configure(api_key=chave)
                     model = genai.GenerativeModel(
-                        model_name="gemini-2.5-flash",
+                        model_name="gemini-3.6-flash",
                         system_instruction=instrucao_sistema
                     )
                     
